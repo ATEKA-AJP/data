@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Catalog</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+    }
+
+    .menu {
+      padding: 10px;
+      background: #f5f5f5;
+    }
+
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    /* ✅ GALERI 1 KOLOM (SCROLL KE BAWAH) */
+    .gallery {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    /* ✅ BIAR GAMBAR FULL & RAPI */
+    .gallery img {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- MENU -->
+  <div class="menu">
+    <h3>Sepatu</h3>
+    <button onclick="load('2.Fancy/1')">Bookstand</button>
+    <button onclick="load('sepatu/formal')">Formal</button>
+
+    <h3>Tas</h3>
+    <button onclick="load('tas/wanita')">Wanita</button>
+    <button onclick="load('tas/pria')">Pria</button>
+  </div>
+
+  <!-- TEMPAT GAMBAR -->
+  <div id="gallery" class="gallery"></div>
+
+  <!-- SCRIPT -->
+  <script>
+    function load(category) {
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      for (let i = 1; i <= 120; i++) {
+        let num = i.toString().padStart(2, '0');
+
+        let img = document.createElement("img");
+        img.src = `images/${category}/${num}.webp`;
+        img.loading = "lazy";
+
+        img.onerror = function () {
+          this.style.display = "none";
+        };
+
+        gallery.appendChild(img);
+      }
+    }
+  </script>
+
+</body>
+</html>
