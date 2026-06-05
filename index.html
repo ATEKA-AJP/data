@@ -2,23 +2,50 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Katalog</title>
+  <title>Katalog Produk</title>
 
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      text-align: center;
     }
 
     .container {
-      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
     }
 
     .card {
+      background: white;
       border: 1px solid #ddd;
-      margin: 10px;
+      border-radius: 8px;
       padding: 10px;
-      border-radius: 6px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    .card p {
+      margin: 4px 0;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -27,57 +54,80 @@
 
   <h2>Katalog Produk</h2>
 
-  <!-- 🔥 WAJIB ADA -->
   <div id="produk-list" class="container"></div>
 
-  <!-- 🔥 SCRIPT HARUS DI BAWAH -->
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec"; // ganti
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
     async function loadProduk() {
+
       const container = document.getElementById("produk-list");
 
-      // 🔥 SAFETY CHECK (biar gak error lagi)
       if (!container) {
         console.error("DIV produk-list tidak ditemukan");
         return;
       }
 
       try {
+
         const res = await fetch(API_URL);
         const json = await res.json();
 
-        console.log(json); // DEBUG
+        console.log(json);
 
         container.innerHTML = "";
 
-        if (!json.data) {
-          container.innerHTML = "Data kosong";
+        if (!json.data || json.data.length === 0) {
+          container.innerHTML = "<p>Data kosong</p>";
           return;
         }
 
         json.data.forEach(item => {
+
+          const imgPath =
+            "images/" +
+            item.kategori + "/" +
+            item.sub_kategori + "/" +
+            item.kode + ".webp";
+
           const div = document.createElement("div");
           div.className = "card";
 
           div.innerHTML = `
+            <img
+              src="${imgPath}"
+              alt="${item["nama item"] || ""}"
+              loading="lazy"
+              onerror="this.src='images/no-image.webp'"
+            >
+
             <h3>${item["nama item"] || "-"}</h3>
-            <p>Kode: ${item.kode || "-"}</p>
-            <p>Kategori: ${item.kategori || "-"}</p>
-            <p>Stock: ${item.stock || 0}</p>
+
+            <p><b>Kode:</b> ${item.kode || "-"}</p>
+
+            <p><b>Kategori:</b> ${item.kategori || "-"}</p>
+
+            <p><b>Sub Kategori:</b> ${item.sub_kategori || "-"}</p>
+
+            <p><b>Stock:</b> ${item.stock || 0}</p>
           `;
 
           container.appendChild(div);
+
         });
 
       } catch (err) {
+
         console.error(err);
-        container.innerHTML = "Gagal load data";
+        container.innerHTML = "<p>Gagal load data</p>";
+
       }
+
     }
 
-    // 🔥 INI KUNCI NYA
     window.onload = loadProduk;
+
   </script>
 
 </body>
