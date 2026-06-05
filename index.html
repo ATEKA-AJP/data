@@ -91,17 +91,6 @@
             item.sub_kategori + "/" +
             item.kode + ".webp";
 
-          const div = document.createElement("div");
-          div.className = "card";
-
-          div.innerHTML = `
-            <img
-              src="${imgPath}"
-              alt="${item["nama item"] || ""}"
-              loading="lazy"
-              onerror="this.src='images/no-image.webp'"
-            >
-
             <h3>${item["nama item"] || "-"}</h3>
 
             <p><b>Kode:</b> ${item.kode || "-"}</p>
