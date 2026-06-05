@@ -84,9 +84,6 @@
         }
 
         json.data.forEach(item => {
-            const div = document.createElement("div"); 
-            div.className = "card"; 
-          
             const imgPath =
             "images/" +
             item.kategori + "/" +
@@ -99,10 +96,10 @@
             div.innerHTML = `
             <img
             src="${imgPath}"
-            alt="${item["nama item"]}"
+            alt="${item["nama item"] || ""}"
             loading="lazy"
             style="width:150px;height:auto;"
-            >
+             >
             
             div.innerHTML =
             <h3>${item["nama item"] || "-"}</h3>
