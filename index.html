@@ -84,7 +84,10 @@
         }
 
         json.data.forEach(item => {
-
+            const div = document.createElement("div"); 
+            div.className = "card"; 
+            
+            div.innerHTML =
             const img = document.createElement("img"); 
             img.src = "images/" + item.kategori + "/" + item.sub_kategori + "/" + item.kode + ".webp"; 
             img.loading = "lazy";
