@@ -85,11 +85,9 @@
 
         json.data.forEach(item => {
 
-          const imgPath =
-            "images/" +
-            item.kategori + "/" +
-            item.sub_kategori + "/" +
-            item.kode + ".webp";
+            const img = document.createElement("img"); 
+            img.src = "images/" + item.kategori + "/" + item.sub_kategori + "/" + item.kode + ".webp"; 
+            img.loading = "lazy";
 
             <h3>${item["nama item"] || "-"}</h3>
 
