@@ -102,15 +102,11 @@
               try {
                 const specObj = JSON.parse(item.spec);
 
-                specHtml = `
-                  <ul>
-                    ${Object.entries(specObj)
-                    .map(([key, value]) => `<li><b>${key}</b>: ${value}</li>`)
-                    .join("")}
-                  </ul>
-                `;
-              } catch (err) {
-                specHtml = item.spec;
+                specHtml = Object.entries(specObj)
+                  .map(([key, value]) =>
+                    `<p><b>${key}:</b> ${value}</p>`
+                  )
+                  .join("");
               }
             }
           
@@ -122,10 +118,9 @@
             style="width:150px;height:auto;"
              >
             
-            <h3>${item["nama item"] || "-"}</h3>
+            <h3 style="text-align:center;">${item["nama item"] || "-"}</h3>
 
-            <p><b>Spec:</b></p> 
-            ${specHtml}
+           ${specHtml}
 
             <p><b>Packaging:</b> ${item.inner || "-"}/${item.carton || "-"} ${item.satuan || "-"} </p>
 
