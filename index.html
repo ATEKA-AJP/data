@@ -105,11 +105,11 @@
             
             <h3>${item["nama item"] || "-"}</h3>
 
-            <p><b>Kode:</b> ${item.kode || "-"}</p>
+            <p><b>Spec:</b> ${item.spec || "-"}</p>
 
-            <p><b>Kategori:</b> ${item.kategori || "-"}</p>
+            <p><b>Packaging:</b> ${item.inner || "-"} + "/" ${item.carton || "-"} + ${item.satuan || "-"} </p>
 
-            <p><b>Sub Kategori:</b> ${item["sub kategori"] || "-"}</p>
+            <p><b>Harga:</b> ${item.harga || "-"}</p>
 
             <p><b>Stock:</b> ${item.stock || 0}</p>
           `;
