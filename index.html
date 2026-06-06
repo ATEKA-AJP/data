@@ -128,7 +128,7 @@
 
             <p><b>Packaging:</b> ${item.inner || "-"}/${item.carton || "-"} ${item.satuan || "-"} </p>
 
-            <p><b>Harga:</b> ${item.harga || "-"}</p>
+            <p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}</p>
 
             <p><b>Stock:</b> ${item.stock || 0}</p>
           `;
