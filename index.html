@@ -27,7 +27,8 @@
     
     /*HP*/
     @media (max-width: 600px){
-      #produk-list {
+      .container {
+        display: grid;
         grid-template-columns: 1fr !important;
       }
     }
@@ -141,7 +142,6 @@
             src="${imgPath}"
             alt="${item["nama item"] || ""}"
             loading="lazy"
-            style="width:150px;height:auto;"
              >
             
             <h3 style="text-align:center;">${item["nama item"] || "-"}</h3>
