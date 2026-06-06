@@ -113,6 +113,15 @@
                 specHtml = item.spec;
               }
             }
+
+            // Olah data packaging
+            const hasInner =
+              item.inner &&
+              item.inner !== "-";
+
+            const packaging = hasInner
+              ? `${item.inner}/${item.carton} ${item.satuan || ""}`
+              : `${item.carton} ${item.satuan || ""}`;
           
             div.innerHTML = `
             <img
