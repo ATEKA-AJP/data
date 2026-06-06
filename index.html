@@ -95,6 +95,25 @@
             const div = document.createElement("div");
             div.className = "card";
 
+            // Olah data spec dari JSON string
+            let specHtml = "-";
+
+            if (item.spec) {
+              try {
+                const specObj = JSON.parse(item.spec);
+
+                specHtml = `
+                  <ul>
+                    ${Object.entries(specObj)
+                    .map(([key, value]) => `<li><b>${key}</b>: ${value}</li>`)
+                    .join("")}
+                  </ul>
+                `;
+              } catch (err) {
+                specHtml = item.spec;
+              }
+            }
+          
             div.innerHTML = `
             <img
             src="${imgPath}"
@@ -105,7 +124,8 @@
             
             <h3>${item["nama item"] || "-"}</h3>
 
-            <p><b>Spec:</b> ${item.spec || "-"}</p>
+            <p><b>Spec:</b></p> 
+            ${specHtml}
 
             <p><b>Packaging:</b> ${item.inner || "-"}/${item.carton || "-"} ${item.satuan || "-"} </p>
 
