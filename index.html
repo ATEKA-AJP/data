@@ -107,6 +107,10 @@
                     `<p><b>${key}:</b> ${value}</p>`
                   )
                   .join("");
+                
+              } catch (err) {
+                console.error("Format spec tidak valid:", item.spec);
+                specHtml = item.spec;
               }
             }
           
