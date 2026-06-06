@@ -16,10 +16,19 @@
       text-align: center;
     }
 
+    /*HP*/
+    @media (max-width: 600px){
+      .container {
+        grid-template-colums: 1fr;
+      }
+    }
+    
+     /*Desktop*/
     .container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
       gap: 15px;
+      justify-items: center;
     }
 
     .card {
@@ -29,6 +38,8 @@
       padding: 10px;
       text-align: left;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 320px;
     }
 
     .card img {
