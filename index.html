@@ -27,33 +27,20 @@
     }
 
     @media (max-width: 600px){
-      .container {
-        grid-template-columns: 1fr;
-      }
+      .container { grid-template-columns: 1fr; }
     }
 
     .card {
       background: white;
+      padding: 10px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .card img {
       width: 100%;
       max-height: 260px;
       object-fit: contain;
-    }
-
-    .topbar {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    button {
-      padding: 6px 10px;
-      margin: 3px;
     }
   </style>
 </head>
@@ -62,47 +49,40 @@
 
 <h2>Katalog Produk</h2>
 
-<div class="topbar">
-  <div id="userInfo"></div>
-  <button id="loginBtn">Login Sales</button>
-  <button id="logoutBtn" style="display:none;">Logout</button>
-</div>
+<div id="userInfo"></div>
+
+<button id="loginBtn">Login Sales</button>
+<button id="logoutBtn" style="display:none;">Logout</button>
 
 <div id="produk-list" class="container"></div>
 
-<!-- Google login config -->
+<!-- GOOGLE LOGIN -->
 <div id="g_id_onload"
      data-client_id="317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com"
      data-callback="handleCredentialResponse">
 </div>
 
 <script>
+
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
-let googleToken = null;
-let userEmail = null;
+let token = null;
+let email = null;
 
-/* =========================
-   LOGIN BUTTON
-========================= */
-document.getElementById("loginBtn").onclick = function () {
+/* LOGIN */
+document.getElementById("loginBtn").onclick = () => {
   google.accounts.id.prompt();
 };
 
-/* =========================
-   HANDLE GOOGLE LOGIN
-========================= */
+/* CALLBACK LOGIN */
 function handleCredentialResponse(response) {
 
-  const payload = JSON.parse(
-    atob(response.credential.split('.')[1])
-  );
+  token = response.credential;
 
-  userEmail = payload.email;
-  googleToken = response.credential;
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  email = payload.email;
 
-  document.getElementById("userInfo").innerText =
-    "Login: " + userEmail;
+  document.getElementById("userInfo").innerText = "Login: " + email;
 
   document.getElementById("loginBtn").style.display = "none";
   document.getElementById("logoutBtn").style.display = "inline";
@@ -110,13 +90,11 @@ function handleCredentialResponse(response) {
   loadProduk();
 }
 
-/* =========================
-   LOGOUT
-========================= */
-document.getElementById("logoutBtn").onclick = function () {
+/* LOGOUT */
+document.getElementById("logoutBtn").onclick = () => {
 
-  googleToken = null;
-  userEmail = null;
+  token = null;
+  email = null;
 
   document.getElementById("userInfo").innerText = "";
 
@@ -126,86 +104,62 @@ document.getElementById("logoutBtn").onclick = function () {
   loadProduk();
 };
 
-/* =========================
-   LOAD DATA
-========================= */
+/* LOAD DATA */
 async function loadProduk() {
-
-  const container = document.getElementById("produk-list");
 
   let url = API_URL;
 
-  if (googleToken) {
-    url += "?token=" + encodeURIComponent(googleToken);
+  if (token) {
+    url += "?token=" + encodeURIComponent(token);
   }
 
-  try {
+  const res = await fetch(url);
+  const json = await res.json();
 
-    const res = await fetch(url);
-    const json = await res.json();
+  const container = document.getElementById("produk-list");
+  container.innerHTML = "";
 
-    container.innerHTML = "";
-
-    if (!json.data || json.data.length === 0) {
-      container.innerHTML = "<p>Data kosong</p>";
-      return;
-    }
-
-    json.data.forEach(item => {
-
-      const imgPath =
-        "images/" +
-        item.kategori + "/" +
-        item["sub kategori"] + "/" +
-        item.kode + ".webp";
-
-      let specHtml = "";
-
-      if (item["spec(json)"]) {
-        try {
-          const specObj = typeof item["spec(json)"] === "string"
-            ? JSON.parse(item["spec(json)"])
-            : item["spec(json)"];
-
-          specHtml = Object.entries(specObj)
-            .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
-            .join("");
-        } catch (e) {}
-      }
-
-      const packaging =
-        item.inner && item.inner !== "-"
-          ? `${item.inner}/${item.carton} ${item.satuan || ""}`
-          : `${item.carton} ${item.satuan || ""}`;
-
-      const div = document.createElement("div");
-      div.className = "card";
-
-      div.innerHTML = `
-        <img src="${imgPath}" loading="lazy">
-        <h3>${item["nama item"] || "-"}</h3>
-
-        ${specHtml}
-
-        <p><b>Packaging:</b> ${packaging}</p>
-
-        ${item.harga ? `
-          <p><b>Harga:</b> Rp ${Number(item.harga).toLocaleString("id-ID")}</p>
-        ` : ""}
-
-        <p><b>Stock:</b> ${item.stock || 0}</p>
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = "<p>Gagal load data</p>";
+  if (!json.data || json.data.length === 0) {
+    container.innerHTML = "<p>Data kosong</p>";
+    return;
   }
+
+  json.data.forEach(item => {
+
+    const spec = item["spec(json)"] || {};
+
+    const specHtml = Object.entries(spec)
+      .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
+      .join("");
+
+    const packaging =
+      item.inner && item.inner !== "-"
+        ? `${item.inner}/${item.carton} ${item.satuan || ""}`
+        : `${item.carton} ${item.satuan || ""}`;
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
+
+      <h3>${item["nama item"] || "-"}</h3>
+
+      ${specHtml}
+
+      <p><b>Packaging:</b> ${packaging}</p>
+
+      ${item.harga ? `<p><b>Harga:</b> Rp ${Number(item.harga).toLocaleString("id-ID")}</p>` : ""}
+
+      <p><b>Stock:</b> ${item.stock || 0}</p>
+    `;
+
+    container.appendChild(div);
+  });
 }
 
 window.onload = loadProduk;
+
 </script>
 
 </body>
