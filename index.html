@@ -126,20 +126,15 @@ async function loadProduk() {
       .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
       .join("");
 
-    const hasInner = item.inner && item.inner !== "-"; 
-    const packaging = hasInner ? ${item.inner}/${item.carton} ${item.satuan || ""} : ${item.carton} ${item.satuan || ""};
-    
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
 
-      <h3 style="text-align:center;">${item["nama item"]}</h3>
+      <h3>${item["nama item"]}</h3>
 
       ${specHtml}
-
-      <p><b>Packaging:</b> ${packaging} </p>
 
       <p><b>Stock:</b> ${item.stock}</p>
     `;
