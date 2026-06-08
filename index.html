@@ -149,6 +149,15 @@ async function loadProduk() {
       <p><b>Packaging:</b> ${packaging} </p>
 
       <p><b>Stock:</b> ${item.stock}</p>
+
+      
+      <p><b>ROLE:</b> ${json.role}</p>
+
+    ${json.role === "sales" ? `
+      <p><b>HARGA:</b> ${item.harga || "-"}</p>
+      <p><b>NETTO:</b> ${item.netto || "-"}</p>
+      <p><b>PPN:</b> ${item.ppn || "-"}</p>
+    ` : ""}
     `;
 
     container.appendChild(div);
