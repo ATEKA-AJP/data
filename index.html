@@ -49,11 +49,6 @@
 
 <div id="userInfo"></div>
 
-<div id="g_id_onload"
-     data-client_id="317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse">
-</div>
-
 <div id="g_id_signin"></div>
 
 <div id="produk-list" class="container"></div>
@@ -109,6 +104,8 @@ async function loadProduk() {
 
   const res = await fetch(url);
   const json = await res.json();
+  /*TESTING*/
+  console.log(json);
 
   const container = document.getElementById("produk-list");
   container.innerHTML = "";
