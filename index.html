@@ -126,7 +126,7 @@ async function loadProduk() {
 
   json.data.forEach(item => {
 
-    const spec = item["spec(json)"] || {};
+    const spec = item["spec"] || {};
 
     const specHtml = Object.entries(spec)
       .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
