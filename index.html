@@ -15,9 +15,7 @@
       background: #f5f5f5;
     }
 
-    h2 {
-      text-align: center;
-    }
+    h2 { text-align: center; }
 
     .container {
       display: grid;
@@ -51,66 +49,62 @@
 
 <div id="userInfo"></div>
 
-<button id="loginBtn">Login Sales</button>
-<button id="logoutBtn" style="display:none;">Logout</button>
-
-<div id="produk-list" class="container"></div>
-
-<!-- GOOGLE LOGIN -->
 <div id="g_id_onload"
      data-client_id="317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com"
      data-callback="handleCredentialResponse">
 </div>
 
+<div id="g_id_signin"></div>
+
+<div id="produk-list" class="container"></div>
+
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
-let token = null;
-let email = null;
+let googleToken = null;
+let userEmail = null;
 
-/* LOGIN */
-document.getElementById("loginBtn").onclick = () => {
-  google.accounts.id.prompt();
+/* INIT GOOGLE LOGIN */
+window.onload = function () {
+
+  google.accounts.id.initialize({
+    client_id: "317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com",
+    callback: handleCredentialResponse
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById("g_id_signin"),
+    {
+      theme: "outline",
+      size: "large"
+    }
+  );
+
+  loadProduk();
 };
 
-/* CALLBACK LOGIN */
+/* LOGIN CALLBACK */
 function handleCredentialResponse(response) {
 
-  token = response.credential;
+  googleToken = response.credential;
 
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  email = payload.email;
+  const payload = JSON.parse(atob(googleToken.split('.')[1]));
+  userEmail = payload.email;
 
-  document.getElementById("userInfo").innerText = "Login: " + email;
-
-  document.getElementById("loginBtn").style.display = "none";
-  document.getElementById("logoutBtn").style.display = "inline";
+  document.getElementById("userInfo").innerText =
+    "Login: " + userEmail;
 
   loadProduk();
 }
-
-/* LOGOUT */
-document.getElementById("logoutBtn").onclick = () => {
-
-  token = null;
-  email = null;
-
-  document.getElementById("userInfo").innerText = "";
-
-  document.getElementById("loginBtn").style.display = "inline";
-  document.getElementById("logoutBtn").style.display = "none";
-
-  loadProduk();
-};
 
 /* LOAD DATA */
 async function loadProduk() {
 
   let url = API_URL;
 
-  if (token) {
-    url += "?token=" + encodeURIComponent(token);
+  if (googleToken) {
+    url += "?token=" + encodeURIComponent(googleToken);
   }
 
   const res = await fetch(url);
@@ -126,16 +120,11 @@ async function loadProduk() {
 
   json.data.forEach(item => {
 
-    const spec = item["spec"] || {};
+    const spec = item.spec || {};
 
     const specHtml = Object.entries(spec)
       .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
       .join("");
-
-    const packaging =
-      item.inner && item.inner !== "-"
-        ? `${item.inner}/${item.carton} ${item.satuan || ""}`
-        : `${item.carton} ${item.satuan || ""}`;
 
     const div = document.createElement("div");
     div.className = "card";
@@ -143,22 +132,16 @@ async function loadProduk() {
     div.innerHTML = `
       <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
 
-      <h3 style="text-align: center;">${item["nama item"] || "-"}</h3>
+      <h3>${item["nama item"]}</h3>
 
       ${specHtml}
 
-      <p><b>Packaging:</b> ${packaging}</p>
-
-      ${item.harga ? `<p><b>Harga:</b> Rp ${Number(item.harga).toLocaleString("id-ID")}</p>` : ""}
-
-      <p><b>Stock:</b> ${item.stock || 0}</p>
+      <p><b>Stock:</b> ${item.stock}</p>
     `;
 
     container.appendChild(div);
   });
 }
-
-window.onload = loadProduk;
 
 </script>
 
