@@ -71,7 +71,6 @@
       font-weight: bold;
     }
 
-    /* FILTER BOX */
     .filter-box {
       display: flex;
       justify-content: center;
@@ -98,7 +97,6 @@
 
 <div id="g_id_signin"></div>
 
-<!-- FILTER CONTAINER -->
 <div id="filterBox" class="filter-box"></div>
 
 <div id="produk-list" class="container"></div>
@@ -119,7 +117,9 @@ let filterState = {
   ppn: false
 };
 
-/* INIT GOOGLE LOGIN */
+/* =====================
+   INIT
+===================== */
 window.onload = function () {
 
   google.accounts.id.initialize({
@@ -135,13 +135,36 @@ window.onload = function () {
     }
   );
 
+  // =====================
+  // AUTO LOGIN FROM STORAGE
+  // =====================
+  googleToken = localStorage.getItem("googleToken");
+
+  if (googleToken) {
+    try {
+      const payload = JSON.parse(atob(googleToken.split('.')[1]));
+      userEmail = payload.email;
+
+      document.getElementById("userInfo").innerText =
+        "Login: " + userEmail;
+    } catch (e) {
+      localStorage.removeItem("googleToken");
+      googleToken = null;
+    }
+  }
+
   loadProduk();
 };
 
-/* LOGIN CALLBACK */
+/* =====================
+   LOGIN CALLBACK
+===================== */
 function handleCredentialResponse(response) {
 
   googleToken = response.credential;
+
+  // SAVE TOKEN (AUTO LOGIN NEXT TIME)
+  localStorage.setItem("googleToken", googleToken);
 
   const payload = JSON.parse(atob(googleToken.split('.')[1]));
   userEmail = payload.email;
@@ -153,27 +176,19 @@ function handleCredentialResponse(response) {
 }
 
 /* =====================
-   RENDER FILTER (ROLE BASED)
+   FILTER RENDER (ROLE BASED)
 ===================== */
 function renderFilters(role) {
   const box = document.getElementById("filterBox");
   box.innerHTML = "";
 
-  // RESET STATE
-  filterState = {
-    new: false,
-    netto: false,
-    ppn: false
-  };
+  // RESET
+  filterState = { new: false, netto: false, ppn: false };
 
-  // =====================
-  // PUBLIC (ONLY NEW)
-  // =====================
+  // PUBLIC
   if (role === "public") {
     box.innerHTML = `
-      <label>
-        <input type="checkbox" id="filterNew"> NEW
-      </label>
+      <label><input type="checkbox" id="filterNew"> NEW</label>
     `;
 
     document.getElementById("filterNew").addEventListener("change", (e) => {
@@ -184,22 +199,12 @@ function renderFilters(role) {
     return;
   }
 
-  // =====================
-  // SALES (ALL FILTERS)
-  // =====================
+  // SALES
   if (role === "sales") {
     box.innerHTML = `
-      <label>
-        <input type="checkbox" id="filterNew"> NEW
-      </label>
-
-      <label>
-        <input type="checkbox" id="filterNetto"> NETTO
-      </label>
-
-      <label>
-        <input type="checkbox" id="filterPpn"> PPN
-      </label>
+      <label><input type="checkbox" id="filterNew"> NEW</label>
+      <label><input type="checkbox" id="filterNetto"> NETTO</label>
+      <label><input type="checkbox" id="filterPpn"> PPN</label>
     `;
 
     document.getElementById("filterNew").addEventListener("change", (e) => {
@@ -220,7 +225,7 @@ function renderFilters(role) {
 }
 
 /* =====================
-   BUILD QUERY PARAM
+   BUILD QUERY
 ===================== */
 function buildQuery() {
   const params = [];
@@ -241,12 +246,9 @@ function buildQuery() {
 ===================== */
 async function loadProduk() {
 
-  const url = API_URL + buildQuery();
-
-  const res = await fetch(url);
+  const res = await fetch(API_URL + buildQuery());
   const json = await res.json();
 
-  /* RENDER FILTER BY ROLE */
   renderFilters(json.role);
 
   const container = document.getElementById("produk-list");
@@ -260,53 +262,37 @@ async function loadProduk() {
   json.data.forEach(item => {
 
     const spec = item.spec || {};
-
     const specHtml = Object.entries(spec)
       .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
       .join("");
 
-    const hasInner = item.inner && item.inner !== "-";
-
-    let packaging = "";
-
-    if (hasInner) {
-      packaging = `${item.inner}/${item.carton} ${item.satuan || ""}`;
-    } else {
-      packaging = `${item.carton} ${item.satuan || ""}`;
-    }
-
-    const nettoBadge = item.netto === "YES"
-      ? `<span class="badge-netto">NETTO</span>`
-      : "";
-
-    const newBadge = item.new === "YES"
-      ? `<span class="badge-new">NEW</span>`
-      : "";
+    let packaging = item.inner && item.inner !== "-"
+      ? `${item.inner}/${item.carton} ${item.satuan || ""}`
+      : `${item.carton} ${item.satuan || ""}`;
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
-    <div class="img-box">
-      ${nettoBadge}
-      ${newBadge}
+      <div class="img-box">
+        ${item.netto === "YES" ? `<span class="badge-netto">NETTO</span>` : ""}
+        ${item.new === "YES" ? `<span class="badge-new">NEW</span>` : ""}
 
-      <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
-    </div>
+        <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
+      </div>
 
-    <h3 style="text-align:center;">${item["nama item"]}</h3>
+      <h3 style="text-align:center;">${item["nama item"]}</h3>
 
-    ${specHtml}
+      ${specHtml}
 
-    <p><b>Packaging:</b> ${packaging}</p>
+      <p><b>Packaging:</b> ${packaging}</p>
+      <p><b>Stock:</b> ${item.stock}</p>
 
-    <p><b>Stock:</b> ${item.stock}</p>
-
-    ${
-      json.role === "sales"
-        ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}/${item.satuan || "-"}</p>`
-        : ""
-    }
+      ${
+        json.role === "sales"
+          ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}</p>`
+          : ""
+      }
     `;
 
     container.appendChild(div);
