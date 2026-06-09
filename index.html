@@ -71,9 +71,7 @@
       font-weight: bold;
     }
 
-    /* =====================
-       FILTER BOX (NEW)
-    ===================== */
+    /* FILTER BOX */
     .filter-box {
       display: flex;
       justify-content: center;
@@ -100,22 +98,8 @@
 
 <div id="g_id_signin"></div>
 
-<!-- =====================
-     FILTER CHECKBOX UI
-===================== -->
-<div class="filter-box">
-  <label>
-    <input type="checkbox" id="filterNew"> NEW
-  </label>
-
-  <label>
-    <input type="checkbox" id="filterNetto"> NETTO
-  </label>
-
-  <label>
-    <input type="checkbox" id="filterPpn"> PPN
-  </label>
-</div>
+<!-- FILTER CONTAINER -->
+<div id="filterBox" class="filter-box"></div>
 
 <div id="produk-list" class="container"></div>
 
@@ -151,24 +135,6 @@ window.onload = function () {
     }
   );
 
-  /* =====================
-     CHECKBOX EVENTS
-  ===================== */
-  document.getElementById("filterNew").addEventListener("change", (e) => {
-    filterState.new = e.target.checked;
-    loadProduk();
-  });
-
-  document.getElementById("filterNetto").addEventListener("change", (e) => {
-    filterState.netto = e.target.checked;
-    loadProduk();
-  });
-
-  document.getElementById("filterPpn").addEventListener("change", (e) => {
-    filterState.ppn = e.target.checked;
-    loadProduk();
-  });
-
   loadProduk();
 };
 
@@ -186,7 +152,76 @@ function handleCredentialResponse(response) {
   loadProduk();
 }
 
-/* BUILD QUERY PARAM */
+/* =====================
+   RENDER FILTER (ROLE BASED)
+===================== */
+function renderFilters(role) {
+  const box = document.getElementById("filterBox");
+  box.innerHTML = "";
+
+  // RESET STATE
+  filterState = {
+    new: false,
+    netto: false,
+    ppn: false
+  };
+
+  // =====================
+  // PUBLIC (ONLY NEW)
+  // =====================
+  if (role === "public") {
+    box.innerHTML = `
+      <label>
+        <input type="checkbox" id="filterNew"> NEW
+      </label>
+    `;
+
+    document.getElementById("filterNew").addEventListener("change", (e) => {
+      filterState.new = e.target.checked;
+      loadProduk();
+    });
+
+    return;
+  }
+
+  // =====================
+  // SALES (ALL FILTERS)
+  // =====================
+  if (role === "sales") {
+    box.innerHTML = `
+      <label>
+        <input type="checkbox" id="filterNew"> NEW
+      </label>
+
+      <label>
+        <input type="checkbox" id="filterNetto"> NETTO
+      </label>
+
+      <label>
+        <input type="checkbox" id="filterPpn"> PPN
+      </label>
+    `;
+
+    document.getElementById("filterNew").addEventListener("change", (e) => {
+      filterState.new = e.target.checked;
+      loadProduk();
+    });
+
+    document.getElementById("filterNetto").addEventListener("change", (e) => {
+      filterState.netto = e.target.checked;
+      loadProduk();
+    });
+
+    document.getElementById("filterPpn").addEventListener("change", (e) => {
+      filterState.ppn = e.target.checked;
+      loadProduk();
+    });
+  }
+}
+
+/* =====================
+   BUILD QUERY PARAM
+===================== */
 function buildQuery() {
   const params = [];
 
@@ -201,13 +236,18 @@ function buildQuery() {
   return params.length ? "?" + params.join("&") : "";
 }
 
-/* LOAD DATA */
+/* =====================
+   LOAD DATA
+===================== */
 async function loadProduk() {
 
   const url = API_URL + buildQuery();
 
   const res = await fetch(url);
   const json = await res.json();
+
+  /* RENDER FILTER BY ROLE */
+  renderFilters(json.role);
 
   const container = document.getElementById("produk-list");
   container.innerHTML = "";
