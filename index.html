@@ -38,7 +38,6 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      overflow: hidden;
     }
 
     .card img {
@@ -65,7 +64,7 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: #c12327;
+      background: #ff9800;
       color: white;
       padding: 4px 8px;
       font-size: 11px;
@@ -111,6 +110,17 @@
       text-align:center;
       margin-bottom:10px;
     }
+
+    #pagination {
+      text-align:center;
+      margin:20px;
+    }
+
+    #pagination button {
+      margin: 0 3px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -132,6 +142,8 @@
 
 <div id="produk-list" class="container"></div>
 
+<div id="pagination"></div>
+
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
@@ -145,6 +157,9 @@ let allData = [];
 
 let lastEmail = localStorage.getItem("lastEmail") || "";
 let searchQuery = "";
+
+let currentPage = 1;
+const itemsPerPage = 12;
 
 let filterState = {
   new: false,
@@ -171,10 +186,10 @@ window.onload = function () {
 
   document.getElementById("searchInput").addEventListener("input", (e) => {
     searchQuery = e.target.value.toLowerCase();
+    currentPage = 1;
     renderProduk();
   });
 
-  // AUTO LOGIN
   googleToken = localStorage.getItem("googleToken");
 
   if (googleToken) {
@@ -235,8 +250,7 @@ function handleCredentialResponse(response) {
 function isTokenExpired(token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    const now = Math.floor(Date.now() / 1000);
-    return payload.exp < now;
+    return payload.exp < Math.floor(Date.now() / 1000);
   } catch (e) {
     return true;
   }
@@ -258,6 +272,7 @@ function logout() {
   }
 
   filterState = { new: false, netto: false, ppn: false };
+  currentPage = 1;
 
   loadProduk();
 }
@@ -278,12 +293,13 @@ function forceLogout() {
   }
 
   filterState = { new: false, netto: false, ppn: false };
+  currentPage = 1;
 
   loadProduk();
 }
 
 /* =====================
-   FILTER RENDER
+   FILTER UI
 ===================== */
 function renderFilters(role) {
 
@@ -321,6 +337,7 @@ function bindFilters() {
   if (newEl) {
     newEl.onchange = (e) => {
       filterState.new = e.target.checked;
+      currentPage = 1;
       renderProduk();
     };
   }
@@ -328,6 +345,7 @@ function bindFilters() {
   if (nettoEl) {
     nettoEl.onchange = (e) => {
       filterState.netto = e.target.checked;
+      currentPage = 1;
       renderProduk();
     };
   }
@@ -335,13 +353,14 @@ function bindFilters() {
   if (ppnEl) {
     ppnEl.onchange = (e) => {
       filterState.ppn = e.target.checked;
+      currentPage = 1;
       renderProduk();
     };
   }
 }
 
 /* =====================
-   LOAD DATA ONCE
+   LOAD DATA
 ===================== */
 async function loadProduk() {
 
@@ -349,7 +368,6 @@ async function loadProduk() {
   const json = await res.json();
 
   userRole = json.role;
-
   allData = json.data || [];
 
   renderFilters(json.role);
@@ -370,7 +388,7 @@ function buildQuery() {
 }
 
 /* =====================
-   RENDER PRODUCT + SEARCH + FILTER
+   RENDER + SEARCH + FILTER + PAGINATION
 ===================== */
 function renderProduk() {
 
@@ -400,12 +418,21 @@ function renderProduk() {
     data = data.filter(item => item.ppn);
   }
 
-  if (!data.length) {
+  /* PAGINATION */
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
+  if (currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * itemsPerPage;
+  const pageData = data.slice(start, start + itemsPerPage);
+
+  if (!pageData.length) {
     container.innerHTML = "<p>Data tidak ditemukan</p>";
+    document.getElementById("pagination").innerHTML = "";
     return;
   }
 
-  data.forEach(item => {
+  pageData.forEach(item => {
 
     const spec = item.spec || {};
     const specHtml = Object.entries(spec)
@@ -430,20 +457,50 @@ function renderProduk() {
 
       ${specHtml}
 
-      <p><b>Packaging:</b> ${packaging}</p>
-      
       <p><b>Stock:</b> ${item.stock}</p>
-      
+
       ${
-      json.role === "sales"
-        ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}/${item.satuan || "-"}</p>
-        `
-        : ""
+        userRole === "sales"
+          ? `<p><b>Harga:</b> Rp ${Number(item.harga || 0).toLocaleString("id-ID")}</p>`
+          : ""
       }
     `;
 
     container.appendChild(div);
   });
+
+  renderPagination(totalPages);
+}
+
+/* =====================
+   PAGINATION UI
+===================== */
+function renderPagination(totalPages) {
+
+  const el = document.getElementById("pagination");
+  el.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  let html = "";
+
+  html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Prev</button>`;
+
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button onclick="changePage(${i})" style="${i === currentPage ? 'font-weight:bold' : ''}">${i}</button>`;
+  }
+
+  html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+
+  el.innerHTML = html;
+}
+
+/* =====================
+   CHANGE PAGE
+===================== */
+function changePage(page) {
+  currentPage = page;
+  renderProduk();
 }
 
 </script>
