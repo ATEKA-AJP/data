@@ -70,6 +70,25 @@
       border-radius: 5px;
       font-weight: bold;
     }
+
+    /* =====================
+       FILTER BOX (NEW)
+    ===================== */
+    .filter-box {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 10px 0 20px;
+    }
+
+    .filter-box label {
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -81,6 +100,23 @@
 
 <div id="g_id_signin"></div>
 
+<!-- =====================
+     FILTER CHECKBOX UI
+===================== -->
+<div class="filter-box">
+  <label>
+    <input type="checkbox" id="filterNew"> NEW
+  </label>
+
+  <label>
+    <input type="checkbox" id="filterNetto"> NETTO
+  </label>
+
+  <label>
+    <input type="checkbox" id="filterPpn"> PPN
+  </label>
+</div>
+
 <div id="produk-list" class="container"></div>
 
 <script>
@@ -89,6 +125,15 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThI
 
 let googleToken = null;
 let userEmail = null;
+
+/* =====================
+   FILTER STATE
+===================== */
+let filterState = {
+  new: false,
+  netto: false,
+  ppn: false
+};
 
 /* INIT GOOGLE LOGIN */
 window.onload = function () {
@@ -105,6 +150,24 @@ window.onload = function () {
       size: "large"
     }
   );
+
+  /* =====================
+     CHECKBOX EVENTS
+  ===================== */
+  document.getElementById("filterNew").addEventListener("change", (e) => {
+    filterState.new = e.target.checked;
+    loadProduk();
+  });
+
+  document.getElementById("filterNetto").addEventListener("change", (e) => {
+    filterState.netto = e.target.checked;
+    loadProduk();
+  });
+
+  document.getElementById("filterPpn").addEventListener("change", (e) => {
+    filterState.ppn = e.target.checked;
+    loadProduk();
+  });
 
   loadProduk();
 };
@@ -123,15 +186,26 @@ function handleCredentialResponse(response) {
   loadProduk();
 }
 
+/* BUILD QUERY PARAM */
+function buildQuery() {
+  const params = [];
+
+  if (googleToken) {
+    params.push("token=" + encodeURIComponent(googleToken));
+  }
+
+  if (filterState.new) params.push("new=true");
+  if (filterState.netto) params.push("netto=true");
+  if (filterState.ppn) params.push("ppn=true");
+
+  return params.length ? "?" + params.join("&") : "";
+}
+
 /* LOAD DATA */
 async function loadProduk() {
 
-  let url = API_URL;
+  const url = API_URL + buildQuery();
 
-  if (googleToken) {
-    url += "?token=" + encodeURIComponent(googleToken);
-  }
-  
   const res = await fetch(url);
   const json = await res.json();
 
@@ -168,7 +242,7 @@ async function loadProduk() {
     const newBadge = item.new === "YES"
       ? `<span class="badge-new">NEW</span>`
       : "";
-    
+
     const div = document.createElement("div");
     div.className = "card";
 
@@ -176,25 +250,23 @@ async function loadProduk() {
     <div class="img-box">
       ${nettoBadge}
       ${newBadge}
-      
+
       <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
+    </div>
 
-      </div>
+    <h3 style="text-align:center;">${item["nama item"]}</h3>
 
-      <h3 style="text-align:center;">${item["nama item"]}</h3>
+    ${specHtml}
 
-      ${specHtml}
+    <p><b>Packaging:</b> ${packaging}</p>
 
-      <p><b>Packaging:</b> ${packaging} </p>
-      
-      <p><b>Stock:</b> ${item.stock}</p>
+    <p><b>Stock:</b> ${item.stock}</p>
 
-      ${
+    ${
       json.role === "sales"
-        ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}/${item.satuan || "-"}</p>
-        `
+        ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}/${item.satuan || "-"}</p>`
         : ""
-      }
+    }
     `;
 
     container.appendChild(div);
