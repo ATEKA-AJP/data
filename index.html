@@ -17,6 +17,11 @@
 
     h2 { text-align: center; }
 
+    #userInfo {
+      text-align:center;
+      margin-bottom:10px;
+    }
+
     .container {
       display: grid;
       grid-template-columns: repeat(2, 300px);
@@ -60,7 +65,7 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: #ff9800;
+      background: #c12327;
       color: white;
       padding: 4px 8px;
       font-size: 11px;
@@ -71,8 +76,9 @@
     .filter-box {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin: 10px 0 20px;
+      gap: 15px;
+      margin: 10px 0;
+      flex-wrap: wrap;
     }
 
     .filter-box label {
@@ -93,6 +99,18 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
+    #searchInput {
+      padding: 8px;
+      width: 250px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .search-box {
+      text-align:center;
+      margin-bottom:10px;
+    }
   </style>
 </head>
 
@@ -105,6 +123,10 @@
 <div id="g_id_signin"></div>
 
 <button id="logoutBtn">Logout</button>
+
+<div class="search-box">
+  <input id="searchInput" type="text" placeholder="Search produk...">
+</div>
 
 <div id="filterBox" class="filter-box"></div>
 
@@ -122,6 +144,7 @@ let userRole = "public";
 let allData = [];
 
 let lastEmail = localStorage.getItem("lastEmail") || "";
+let searchQuery = "";
 
 let filterState = {
   new: false,
@@ -145,6 +168,11 @@ window.onload = function () {
   );
 
   document.getElementById("logoutBtn").onclick = logout;
+
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    renderProduk();
+  });
 
   // AUTO LOGIN
   googleToken = localStorage.getItem("googleToken");
@@ -202,7 +230,7 @@ function handleCredentialResponse(response) {
 }
 
 /* =====================
-   TOKEN EXPIRED CHECK
+   TOKEN CHECK
 ===================== */
 function isTokenExpired(token) {
   try {
@@ -247,8 +275,6 @@ function forceLogout() {
   if (lastEmail) {
     document.getElementById("userInfo").innerText =
       "Last login: " + lastEmail;
-  } else {
-    document.getElementById("userInfo").innerText = "";
   }
 
   filterState = { new: false, netto: false, ppn: false };
@@ -257,7 +283,7 @@ function forceLogout() {
 }
 
 /* =====================
-   FILTER UI
+   FILTER RENDER
 ===================== */
 function renderFilters(role) {
 
@@ -331,7 +357,7 @@ async function loadProduk() {
 }
 
 /* =====================
-   QUERY BUILDER
+   QUERY
 ===================== */
 function buildQuery() {
   const params = [];
@@ -344,7 +370,7 @@ function buildQuery() {
 }
 
 /* =====================
-   RENDER PRODUCT (CLIENT FILTER)
+   RENDER PRODUCT + SEARCH + FILTER
 ===================== */
 function renderProduk() {
 
@@ -353,6 +379,15 @@ function renderProduk() {
 
   let data = allData;
 
+  /* SEARCH */
+  if (searchQuery) {
+    data = data.filter(item =>
+      (item["nama item"] || "").toLowerCase().includes(searchQuery) ||
+      (item.kode || "").toLowerCase().includes(searchQuery)
+    );
+  }
+
+  /* FILTER */
   if (filterState.new) {
     data = data.filter(item => item.new === "YES");
   }
