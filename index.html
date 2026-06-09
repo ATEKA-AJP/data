@@ -186,6 +186,8 @@ async function loadProduk() {
       ${specHtml}
 
       <p><b>Packaging:</b> ${packaging} </p>
+      
+      <p><b>Stock:</b> ${item.stock}</p>
 
       ${
       json.role === "sales"
@@ -193,7 +195,6 @@ async function loadProduk() {
         `
         : ""
       }
-      <p><b>Stock:</b> ${item.stock}</p>
     `;
 
     container.appendChild(div);
