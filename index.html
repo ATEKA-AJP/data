@@ -101,8 +101,12 @@
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
+/* =====================
+   GLOBAL STATE
+===================== */
 let googleToken = null;
 let userRole = "public";
+let allData = [];
 
 let filterState = {
   new: false,
@@ -131,14 +135,14 @@ window.onload = function () {
   if (googleToken) {
     try {
       const payload = JSON.parse(atob(googleToken.split('.')[1]));
-      document.getElementById("userInfo").innerText = "Login: " + payload.email;
+      document.getElementById("userInfo").innerText =
+        "Login: " + payload.email;
     } catch (e) {
       localStorage.removeItem("googleToken");
       googleToken = null;
     }
   }
 
-  renderFilters("public");
   loadProduk();
 };
 
@@ -150,13 +154,14 @@ function handleCredentialResponse(response) {
   localStorage.setItem("googleToken", googleToken);
 
   const payload = JSON.parse(atob(googleToken.split('.')[1]));
-  document.getElementById("userInfo").innerText = "Login: " + payload.email;
+  document.getElementById("userInfo").innerText =
+    "Login: " + payload.email;
 
   loadProduk();
 }
 
 /* =====================
-   FILTER RENDER (STABLE)
+   RENDER FILTER (1x saja)
 ===================== */
 function renderFilters(role) {
   const box = document.getElementById("filterBox");
@@ -182,7 +187,7 @@ function renderFilters(role) {
 }
 
 /* =====================
-   BIND EVENT (FIX BUG UTAMA)
+   EVENT FILTER (CLIENT ONLY)
 ===================== */
 function bindFilters() {
 
@@ -193,44 +198,27 @@ function bindFilters() {
   if (newEl) {
     newEl.onchange = (e) => {
       filterState.new = e.target.checked;
-      loadProduk();
+      renderProduk();
     };
   }
 
   if (nettoEl) {
     nettoEl.onchange = (e) => {
       filterState.netto = e.target.checked;
-      loadProduk();
+      renderProduk();
     };
   }
 
   if (ppnEl) {
     ppnEl.onchange = (e) => {
       filterState.ppn = e.target.checked;
-      loadProduk();
+      renderProduk();
     };
   }
 }
 
 /* =====================
-   BUILD QUERY
-===================== */
-function buildQuery() {
-  const params = [];
-
-  if (googleToken) {
-    params.push("token=" + encodeURIComponent(googleToken));
-  }
-
-  if (filterState.new) params.push("new=true");
-  if (filterState.netto) params.push("netto=true");
-  if (filterState.ppn) params.push("ppn=true");
-
-  return params.length ? "?" + params.join("&") : "";
-}
-
-/* =====================
-   LOAD DATA
+   LOAD DATA ONCE
 ===================== */
 async function loadProduk() {
 
@@ -239,17 +227,53 @@ async function loadProduk() {
 
   userRole = json.role;
 
+  allData = json.data || [];
+
   renderFilters(json.role);
+  renderProduk();
+}
+
+/* =====================
+   BUILD QUERY (LOGIN ONLY)
+===================== */
+function buildQuery() {
+  const params = [];
+
+  if (googleToken) {
+    params.push("token=" + encodeURIComponent(googleToken));
+  }
+
+  return params.length ? "?" + params.join("&") : "";
+}
+
+/* =====================
+   RENDER PRODUCT (CLIENT FILTER)
+===================== */
+function renderProduk() {
 
   const container = document.getElementById("produk-list");
   container.innerHTML = "";
 
-  if (!json.data || json.data.length === 0) {
-    container.innerHTML = "<p>Data kosong</p>";
+  let data = allData;
+
+  if (filterState.new) {
+    data = data.filter(item => item.new === "YES");
+  }
+
+  if (filterState.netto) {
+    data = data.filter(item => item.netto === "YES");
+  }
+
+  if (filterState.ppn) {
+    data = data.filter(item => item.ppn);
+  }
+
+  if (!data.length) {
+    container.innerHTML = "<p>Data tidak ditemukan</p>";
     return;
   }
 
-  json.data.forEach(item => {
+  data.forEach(item => {
 
     const spec = item.spec || {};
     const specHtml = Object.entries(spec)
