@@ -431,7 +431,15 @@ function renderProduk() {
       ${specHtml}
 
       <p><b>Packaging:</b> ${packaging}</p>
+      
       <p><b>Stock:</b> ${item.stock}</p>
+      
+      ${
+      json.role === "sales"
+        ? `<p><b>Harga:</b> Rp. ${Number(item.harga).toLocaleString("id-ID")}/${item.satuan || "-"}</p>
+        `
+        : ""
+      }
     `;
 
     container.appendChild(div);
