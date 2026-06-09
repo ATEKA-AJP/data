@@ -82,6 +82,17 @@
       border: 1px solid #ddd;
       cursor: pointer;
     }
+
+    #logoutBtn {
+      display: none;
+      margin: 10px auto;
+      padding: 8px 12px;
+      border: none;
+      background: #e53935;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -93,6 +104,8 @@
 
 <div id="g_id_signin"></div>
 
+<button id="logoutBtn">Logout</button>
+
 <div id="filterBox" class="filter-box"></div>
 
 <div id="produk-list" class="container"></div>
@@ -102,11 +115,13 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
 /* =====================
-   GLOBAL STATE
+   STATE
 ===================== */
 let googleToken = null;
 let userRole = "public";
 let allData = [];
+
+let lastEmail = localStorage.getItem("lastEmail") || "";
 
 let filterState = {
   new: false,
@@ -129,17 +144,36 @@ window.onload = function () {
     { theme: "outline", size: "large" }
   );
 
+  document.getElementById("logoutBtn").onclick = logout;
+
   // AUTO LOGIN
   googleToken = localStorage.getItem("googleToken");
 
   if (googleToken) {
-    try {
-      const payload = JSON.parse(atob(googleToken.split('.')[1]));
+
+    if (isTokenExpired(googleToken)) {
+      forceLogout();
+    } else {
+      try {
+        const payload = JSON.parse(atob(googleToken.split('.')[1]));
+
+        lastEmail = payload.email;
+        localStorage.setItem("lastEmail", lastEmail);
+
+        document.getElementById("userInfo").innerText =
+          "Login: " + payload.email;
+
+        document.getElementById("logoutBtn").style.display = "block";
+
+      } catch (e) {
+        forceLogout();
+      }
+    }
+
+  } else {
+    if (lastEmail) {
       document.getElementById("userInfo").innerText =
-        "Login: " + payload.email;
-    } catch (e) {
-      localStorage.removeItem("googleToken");
-      googleToken = null;
+        "Last login: " + lastEmail;
     }
   }
 
@@ -150,20 +184,83 @@ window.onload = function () {
    LOGIN
 ===================== */
 function handleCredentialResponse(response) {
+
   googleToken = response.credential;
   localStorage.setItem("googleToken", googleToken);
 
   const payload = JSON.parse(atob(googleToken.split('.')[1]));
+
+  lastEmail = payload.email;
+  localStorage.setItem("lastEmail", lastEmail);
+
   document.getElementById("userInfo").innerText =
     "Login: " + payload.email;
+
+  document.getElementById("logoutBtn").style.display = "block";
 
   loadProduk();
 }
 
 /* =====================
-   RENDER FILTER (1x saja)
+   TOKEN EXPIRED CHECK
+===================== */
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < now;
+  } catch (e) {
+    return true;
+  }
+}
+
+/* =====================
+   LOGOUT
+===================== */
+function logout() {
+  localStorage.removeItem("googleToken");
+  googleToken = null;
+  userRole = "public";
+
+  document.getElementById("logoutBtn").style.display = "none";
+
+  if (lastEmail) {
+    document.getElementById("userInfo").innerText =
+      "Last login: " + lastEmail;
+  }
+
+  filterState = { new: false, netto: false, ppn: false };
+
+  loadProduk();
+}
+
+/* =====================
+   FORCE LOGOUT
+===================== */
+function forceLogout() {
+  localStorage.removeItem("googleToken");
+  googleToken = null;
+  userRole = "public";
+
+  document.getElementById("logoutBtn").style.display = "none";
+
+  if (lastEmail) {
+    document.getElementById("userInfo").innerText =
+      "Last login: " + lastEmail;
+  } else {
+    document.getElementById("userInfo").innerText = "";
+  }
+
+  filterState = { new: false, netto: false, ppn: false };
+
+  loadProduk();
+}
+
+/* =====================
+   FILTER UI
 ===================== */
 function renderFilters(role) {
+
   const box = document.getElementById("filterBox");
   box.innerHTML = "";
 
@@ -187,7 +284,7 @@ function renderFilters(role) {
 }
 
 /* =====================
-   EVENT FILTER (CLIENT ONLY)
+   FILTER EVENTS
 ===================== */
 function bindFilters() {
 
@@ -234,7 +331,7 @@ async function loadProduk() {
 }
 
 /* =====================
-   BUILD QUERY (LOGIN ONLY)
+   QUERY BUILDER
 ===================== */
 function buildQuery() {
   const params = [];
