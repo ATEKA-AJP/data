@@ -23,21 +23,70 @@
     }
 
     .container {
-      display: grid;
-      grid-template-columns: repeat(2, 300px);
-      gap: 80px;
-      justify-content: center;
-    }
-
-    @media (max-width: 600px){
-      .container { grid-template-columns: 1fr; }
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+      gap:24px;
     }
 
     .card {
       background: white;
-      padding: 10px;
+      padding: 15px;
       border: 1px solid #ddd;
-      border-radius: 8px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .summary-spec {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    .summary-spec div {
+      color: #444;
+    }
+
+    .detail-btn {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: #1976d2;
+      color: white;
+      cursor: pointer;
+    }
+
+    .detail-btn:hover {
+      background: #1565c0;
+    }
+    
+    .spec-detail {
+      display: none;
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    
+    .spec-table td {
+      padding: 6px;
+    }
+    
+    .spec-table tr:nth-child(even) {
+      background: #f5f5f5;
+    }
+    
+    .spec-table td:first-child {
+      width: 40%;
+      font-weight: bold;
+      color: #555;
     }
 
     .card img {
@@ -120,6 +169,13 @@
       margin: 0 3px;
       padding: 5px 10px;
       cursor: pointer;
+    }
+
+    .price {
+      margin-top: auto;
+      font-size: 18px;
+      font-weight: bold;
+      color: #e53935;
     }
   </style>
 </head>
@@ -432,12 +488,27 @@ function renderProduk() {
     return;
   }
 
-  pageData.forEach(item => {
-
+  pageData.forEach((item,index) => {
+    const detailId = `detail_${item.kode}`;
     const spec = item.spec || {};
-    const specHtml = Object.entries(spec)
-      .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
-      .join("");
+    const specEntries = Object.entries(spec);
+    const summaryHtml = summaryKeys
+      .filter(key => spec[key])
+      .map(key => `
+        <div><b>${key}</b>: ${spec[key]}</div>
+      `)
+      .join("");;
+
+    const detailHtml = `
+    <table class="spec-table">
+    ${specEntries.map(([k,v]) => `
+      <tr>
+        <td>${k}</td>
+        <td>${v}</td>
+      </tr>
+    `).join("")}
+    </table>
+    `;
 
     let packaging = item.inner && item.inner !== "-"
       ? `${item.inner}/${item.carton} ${item.satuan || ""}`
@@ -453,17 +524,39 @@ function renderProduk() {
         <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
       </div>
 
-      <h3 style="text-align:center;">${item["nama item"]}</h3>
+      <h3 style="text-align:center;">
+        ${item["nama item"]}
+      </h3>
 
-      ${specHtml}
+      <div class="summary-spec">
+        ${summaryHtml}
+      </div>
+      
+      <button
+        id="btn_${detailId}"
+        class="detail-btn"
+        onclick="toggleSpec('${detailId}')">
+        ▼ Detail Spesifikasi
+      </button>
 
-      <p><b>Packaging:</b> ${packaging} </p>
-
+      <div
+        id="${detailId}"
+        class="spec-detail">
+        ${detailHtml}
+      </div>
+      
+      <p><b>Packaging:</b> ${packaging}</p>
+      
       <p><b>Stock:</b> ${item.stock}</p>
 
       ${
         userRole === "sales"
-          ? `<p><b>Harga:</b> Rp ${Number(item.harga || 0).toLocaleString("id-ID")}/${item["satuan"]}</p>`
+          ? `
+          <p class="price">
+            Rp ${Number(item.harga || 0).toLocaleString("id-ID")}
+            /${item["satuan"]}
+          </p>
+          `
           : ""
       }
     `;
@@ -497,6 +590,24 @@ function renderPagination(totalPages) {
   el.innerHTML = html;
 }
 
+function toggleSpec(id) {
+
+  const el = document.getElementById(id);
+  const btn = document.getElementById("btn_" + id);
+
+  if (el.style.display === "block") {
+
+    el.style.display = "none";
+    btn.textContent = "▼ Detail Spesifikasi";
+
+  } else {
+
+    el.style.display = "block";
+    btn.textContent = "▲ Sembunyikan Detail";
+
+  }
+}
+  
 /* =====================
    CHANGE PAGE
 ===================== */
