@@ -488,16 +488,16 @@ function renderProduk() {
     return;
   }
 
-  pageData.forEach((item,index) => {
+  pageData.forEach(item => {
     const detailId = `detail_${item.kode}`;
     const spec = item.spec || {};
     const specEntries = Object.entries(spec);
-    const summaryHtml = summaryKeys
-      .filter(key => spec[key])
-      .map(key => `
-        <div><b>${key}</b>: ${spec[key]}</div>
+    const summaryHtml = specEntries
+      .slice(0, 3)
+      .map(([k,v]) => `
+        <div><b>${k}</b>: ${v}</div>
       `)
-      .join("");;
+      .join("");
 
     const detailHtml = `
     <table class="spec-table">
