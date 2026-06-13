@@ -66,12 +66,20 @@
     }
     
     .spec-detail {
-      display: none;
-      margin-top: 10px;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
     }
-
+    
+    .spec-detail.open {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+    
     .spec-table {
       width: 100%;
       border-collapse: collapse;
@@ -189,12 +197,6 @@
       margin-top: 8px;
       padding-top: 8px;
       border-top: 1px solid #eee;
-    }
-    
-    .spec-detail {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.25s ease;
     }
   </style>
 </head>
@@ -623,11 +625,15 @@ function toggleSpec(id) {
   const el = document.getElementById(id);
   const btn = document.getElementById("btn_" + id);
 
-  if (el.style.maxHeight) {
-    el.style.maxHeight = null;
+  if (!el) return;
+
+  if (el.style.maxHeight && el.style.maxHeight !== "0px") {
+    el.style.maxHeight = "0px";
+    el.classList.remove("open");
     btn.textContent = "▼ Detail Spesifikasi";
   } else {
     el.style.maxHeight = el.scrollHeight + "px";
+    el.classList.add("open");
     btn.textContent = "▲ Sembunyikan Detail";
   }
 }
