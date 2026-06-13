@@ -68,10 +68,7 @@
     .spec-detail {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.25s ease;
-      margin-top: 0;
-      padding-top: 0;
-      border-top: 0;
+      transition: max-height 0.3s ease;
     }
     
     .spec-detail.open {
@@ -621,7 +618,6 @@ function renderPagination(totalPages) {
 }
 
 function toggleSpec(id) {
-
   const el = document.getElementById(id);
   const btn = document.getElementById("btn_" + id);
 
@@ -632,8 +628,8 @@ function toggleSpec(id) {
     el.classList.remove("open");
     btn.textContent = "▼ Detail Spesifikasi";
   } else {
-    el.style.maxHeight = el.scrollHeight + "px";
     el.classList.add("open");
+    el.style.maxHeight = el.scrollHeight + "px";
     btn.textContent = "▲ Sembunyikan Detail";
   }
 }
