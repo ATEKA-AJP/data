@@ -36,12 +36,14 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      transition: transform 0.2s ease;
     }
 
     .summary-spec {
       display: grid;
-      gap: 6px;
-      font-size: 14px;
+      gap: 3px;
+      font-size: 13px;
+      color: #444;
     }
 
     .summary-spec div {
@@ -49,17 +51,18 @@
     }
 
     .detail-btn {
-      width: 100%;
-      padding: 8px;
+      background: none;
       border: none;
-      border-radius: 6px;
-      background: #1976d2;
-      color: white;
+      color: #1976d2;
+      font-weight: 600;
       cursor: pointer;
+      padding: 4px 0;
+      text-align: left;
+      font-size: 13px;
     }
-
+    
     .detail-btn:hover {
-      background: #1565c0;
+      text-decoration: underline;
     }
     
     .spec-detail {
@@ -176,6 +179,22 @@
       font-size: 18px;
       font-weight: bold;
       color: #e53935;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #555;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }
+    
+    .spec-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
     }
   </style>
 </head>
@@ -553,9 +572,10 @@ function renderProduk() {
       </div>
       ` : ""}
       
-      <p><b>Packaging:</b> ${packaging}</p>
-      
-      <p><b>Stock:</b> ${item.stock}</p>
+      <div class="meta-row">
+        <div><b>Packaging:</b> ${packaging}</div>
+        <div><b>Stock:</b> ${item.stock}</div>
+      </div>
 
       ${
         userRole === "sales"
@@ -603,16 +623,12 @@ function toggleSpec(id) {
   const el = document.getElementById(id);
   const btn = document.getElementById("btn_" + id);
 
-  if (el.style.display === "block") {
-
-    el.style.display = "none";
+  if (el.style.maxHeight) {
+    el.style.maxHeight = null;
     btn.textContent = "▼ Detail Spesifikasi";
-
   } else {
-
-    el.style.display = "block";
+    el.style.maxHeight = el.scrollHeight + "px";
     btn.textContent = "▲ Sembunyikan Detail";
-
   }
 }
   
