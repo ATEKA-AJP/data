@@ -492,8 +492,12 @@ function renderProduk() {
     const detailId = `detail_${item.kode}`;
     const spec = item.spec || {};
     const specEntries = Object.entries(spec);
+    
+    const summaryCount = 3;
+    const hasDetail = specEntries.length > summaryCount;
+    
     const summaryHtml = specEntries
-      .slice(0, 3)
+      .slice(0, summaryCount)
       .map(([k,v]) => `
         <div><b>${k}</b>: ${v}</div>
       `)
@@ -501,12 +505,14 @@ function renderProduk() {
 
     const detailHtml = `
     <table class="spec-table">
-    ${specEntries.map(([k,v]) => `
-      <tr>
-        <td>${k}</td>
-        <td>${v}</td>
-      </tr>
-    `).join("")}
+    ${specEntries
+      .slice(summaryCount)
+      .map(([k,v]) => `
+        <tr>
+          <td>${k}</td>
+          <td>${v}</td>
+        </tr>
+      `).join("")}
     </table>
     `;
 
@@ -532,18 +538,20 @@ function renderProduk() {
         ${summaryHtml}
       </div>
       
+      ${hasDetail ? `
       <button
         id="btn_${detailId}"
         class="detail-btn"
         onclick="toggleSpec('${detailId}')">
         ▼ Detail Spesifikasi
       </button>
-
+      
       <div
         id="${detailId}"
         class="spec-detail">
         ${detailHtml}
       </div>
+      ` : ""}
       
       <p><b>Packaging:</b> ${packaging}</p>
       
