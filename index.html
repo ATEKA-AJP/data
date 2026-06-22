@@ -151,7 +151,7 @@ h2 { text-align:center; }
 
 <script>
 
-const API_URL = "YOUR_API_URL";
+const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
 let token = localStorage.getItem("googleToken");
 let role = "public";
@@ -167,7 +167,7 @@ let filter = { new:false, netto:false, ppn:false };
 /* ================= INIT ================= */
 window.onload = () => {
   google.accounts.id.initialize({
-    client_id: "YOUR_CLIENT_ID",
+    client_id: "317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com",
     callback: login
   });
 
