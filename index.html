@@ -1,201 +1,136 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Katalog Produk</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog Produk</title>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
-    }
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  padding: 20px;
+  background: #f5f5f5;
+}
 
-    h2 { text-align: center; }
+h2 { text-align:center; }
 
-    #userInfo {
-      text-align:center;
-      margin-bottom:10px;
-    }
+#userInfo { text-align:center; margin-bottom:10px; }
 
-    .container {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-      gap:24px;
-    }
+.container {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:24px;
+}
 
-    .card {
-      background: white;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: transform 0.2s ease;
-    }
+.card {
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 
-    .summary-spec {
-      display: grid;
-      gap: 3px;
-      font-size: 13px;
-      color: #444;
-    }
+.card img {
+  width:100%;
+  max-height:260px;
+  object-fit:contain;
+}
 
-    .summary-spec div {
-      color: #444;
-    }
+.img-box { position:relative; }
 
-    .detail-btn {
-      background: none;
-      border: none;
-      color: #1976d2;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 4px 0;
-      text-align: left;
-      font-size: 13px;
-    }
-    
-    .detail-btn:hover {
-      text-decoration: underline;
-    }
-    
-    .spec-detail {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-    
-    .spec-detail.open {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #eee;
-    }
-    
-    .spec-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    
-    .spec-table td {
-      padding: 6px;
-    }
-    
-    .spec-table tr:nth-child(even) {
-      background: #f5f5f5;
-    }
-    
-    .spec-table td:first-child {
-      width: 40%;
-      font-weight: bold;
-      color: #555;
-    }
+.badge-netto, .badge-new {
+  position:absolute;
+  right:10px;
+  color:white;
+  padding:4px 8px;
+  font-size:11px;
+  border-radius:5px;
+  font-weight:bold;
+}
 
-    .card img {
-      width: 100%;
-      max-height: 260px;
-      object-fit: contain;
-    }
+.badge-netto { top:30px; background:#4caf50; }
+.badge-new { top:10px; background:#c12327; }
 
-    .img-box { position: relative; }
+.filter-box {
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
 
-    .badge-netto {
-      position: absolute;
-      top: 30px;
-      right: 10px;
-      background: #4caf50;
-      color: white;
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
+.filter-box label {
+  background:white;
+  padding:8px 12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  cursor:pointer;
+}
 
-    .badge-new {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #c12327;
-      color: white;
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
+.search-box { text-align:center; margin-bottom:10px; }
 
-    .filter-box {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 10px 0;
-      flex-wrap: wrap;
-    }
+#searchInput {
+  padding:8px;
+  width:250px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
 
-    .filter-box label {
-      background: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      cursor: pointer;
-    }
+.price {
+  font-size:18px;
+  font-weight:bold;
+  color:#e53935;
+  margin-top:auto;
+}
 
-    #logoutBtn {
-      display: none;
-      margin: 10px auto;
-      padding: 8px 12px;
-      border: none;
-      background: #e53935;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+.meta-row {
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  border-top:1px solid #eee;
+  padding-top:8px;
+}
 
-    #searchInput {
-      padding: 8px;
-      width: 250px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+.detail-btn {
+  background:none;
+  border:none;
+  color:#1976d2;
+  cursor:pointer;
+  text-align:left;
+}
 
-    .search-box {
-      text-align:center;
-      margin-bottom:10px;
-    }
+.spec-detail {
+  max-height:0;
+  overflow:hidden;
+  transition:0.3s ease;
+}
 
-    #pagination {
-      text-align:center;
-      margin:20px;
-    }
+.spec-detail.open {
+  margin-top:10px;
+  border-top:1px solid #eee;
+  padding-top:10px;
+}
 
-    #pagination button {
-      margin: 0 3px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
+.spec-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
 
-    .price {
-      margin-top: auto;
-      font-size: 18px;
-      font-weight: bold;
-      color: #e53935;
-    }
+.spec-table td {
+  padding:6px;
+}
 
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: #555;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
-    }
-  </style>
+#pagination {
+  text-align:center;
+  margin:20px;
+}
+</style>
 </head>
 
 <body>
@@ -203,537 +138,234 @@
 <h2>Katalog Produk</h2>
 
 <div id="userInfo"></div>
-
 <div id="g_id_signin"></div>
-
 <button id="logoutBtn">Logout</button>
 
 <div class="search-box">
-  <input id="searchInput" type="text" placeholder="Search produk...">
+  <input id="searchInput" placeholder="Search produk...">
 </div>
 
 <div id="filterBox" class="filter-box"></div>
-
 <div id="produk-list" class="container"></div>
-
 <div id="pagination"></div>
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
+const API_URL = "YOUR_API_URL";
 
-/* =====================
-   STATE
-===================== */
-let googleToken = null;
-let userRole = "public";
+let token = localStorage.getItem("googleToken");
+let role = "public";
 let allData = [];
-  
-let currentRenderedData = [];
+let renderedData = [];
 
-let lastEmail = localStorage.getItem("lastEmail") || "";
-let searchQuery = "";
+let search = "";
+let page = 1;
+const perPage = 12;
 
-let currentPage = 1;
-const itemsPerPage = 12;
+let filter = { new:false, netto:false, ppn:false };
 
-let filterState = {
-  new: false,
-  netto: false,
-  ppn: false
-};
-
-/* =====================
-   INIT
-===================== */
-window.onload = function () {
-
+/* ================= INIT ================= */
+window.onload = () => {
   google.accounts.id.initialize({
-    client_id: "317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com",
-    callback: handleCredentialResponse
+    client_id: "YOUR_CLIENT_ID",
+    callback: login
   });
 
   google.accounts.id.renderButton(
     document.getElementById("g_id_signin"),
-    { theme: "outline", size: "large" }
+    { theme:"outline", size:"large" }
   );
 
-  document.getElementById("logoutBtn").onclick = logout;
+  document.getElementById("searchInput").oninput = e=>{
+    search = e.target.value.toLowerCase();
+    page = 1;
+    render();
+  };
 
-  document.getElementById("searchInput").addEventListener("input", (e) => {
-    searchQuery = e.target.value.toLowerCase();
-    currentPage = 1;
-    renderProduk();
-  });
-
-  googleToken = localStorage.getItem("googleToken");
-
-  if (googleToken) {
-
-    if (isTokenExpired(googleToken)) {
-      forceLogout();
-    } else {
-      try {
-        const payload = JSON.parse(atob(googleToken.split('.')[1]));
-
-        lastEmail = payload.email;
-        localStorage.setItem("lastEmail", lastEmail);
-
-        document.getElementById("userInfo").innerText =
-          "Login: " + payload.email;
-
-        document.getElementById("logoutBtn").style.display = "block";
-
-      } catch (e) {
-        forceLogout();
-      }
-    }
-
-  } else {
-    if (lastEmail) {
-      document.getElementById("userInfo").innerText =
-        "Last login: " + lastEmail;
-    }
-  }
-
-  loadProduk();
+  load();
 };
 
-/* =====================
-   LOGIN
-===================== */
-function handleCredentialResponse(response) {
-
-  googleToken = response.credential;
-  localStorage.setItem("googleToken", googleToken);
-
-  const payload = JSON.parse(atob(googleToken.split('.')[1]));
-
-  lastEmail = payload.email;
-  localStorage.setItem("lastEmail", lastEmail);
-
-  document.getElementById("userInfo").innerText =
-    "Login: " + payload.email;
-
-  document.getElementById("logoutBtn").style.display = "block";
-
-  loadProduk();
+/* ================= LOGIN ================= */
+function login(res){
+  token = res.credential;
+  localStorage.setItem("googleToken", token);
+  load();
 }
 
-/* =====================
-   TOKEN CHECK
-===================== */
-function isTokenExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp < Math.floor(Date.now() / 1000);
-  } catch (e) {
-    return true;
-  }
-}
-
-/* =====================
-   LOGOUT
-===================== */
-function logout() {
-  localStorage.removeItem("googleToken");
-  googleToken = null;
-  userRole = "public";
-
-  document.getElementById("logoutBtn").style.display = "none";
-
-  if (lastEmail) {
-    document.getElementById("userInfo").innerText =
-      "Last login: " + lastEmail;
-  }
-
-  filterState = { new: false, netto: false, ppn: false };
-  currentPage = 1;
-
-  loadProduk();
-}
-
-/* =====================
-   FORCE LOGOUT
-===================== */
-function forceLogout() {
-  localStorage.removeItem("googleToken");
-  googleToken = null;
-  userRole = "public";
-
-  document.getElementById("logoutBtn").style.display = "none";
-
-  if (lastEmail) {
-    document.getElementById("userInfo").innerText =
-      "Last login: " + lastEmail;
-  }
-
-  filterState = { new: false, netto: false, ppn: false };
-  currentPage = 1;
-
-  loadProduk();
-}
-
-/* =====================
-   FILTER UI
-===================== */
-function renderFilters(role) {
-
-  const box = document.getElementById("filterBox");
-  box.innerHTML = "";
-
-  userRole = role;
-
-  if (role === "public") {
-    box.innerHTML = `
-      <label><input type="checkbox" id="filterNew"> NEW</label>
-    `;
-  }
-
-  if (role === "sales") {
-    box.innerHTML = `
-      <label><input type="checkbox" id="filterNew"> NEW</label>
-      <label><input type="checkbox" id="filterNetto"> NETTO</label>
-      <label><input type="checkbox" id="filterPpn"> PPN</label>
-    `;
-  }
-
-  bindFilters();
-}
-
-/* =====================
-   FILTER EVENTS
-===================== */
-function bindFilters() {
-
-  const newEl = document.getElementById("filterNew");
-  const nettoEl = document.getElementById("filterNetto");
-  const ppnEl = document.getElementById("filterPpn");
-
-  if (newEl) {
-    newEl.onchange = (e) => {
-      filterState.new = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-
-  if (nettoEl) {
-    nettoEl.onchange = (e) => {
-      filterState.netto = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-
-  if (ppnEl) {
-    ppnEl.onchange = (e) => {
-      filterState.ppn = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-}
-
-/* =====================
-   LOAD DATA
-===================== */
-async function loadProduk() {
-
-  const res = await fetch(API_URL + buildQuery());
+/* ================= LOAD ================= */
+async function load(){
+  const res = await fetch(API_URL + (token ? "?token="+token : ""));
   const json = await res.json();
 
-  userRole = json.role;
+  role = json.role;
   allData = json.data || [];
 
-  renderFilters(json.role);
-  renderProduk();
+  renderFilter();
+  render();
 }
 
-/* =====================
-   QUERY
-===================== */
-function buildQuery() {
-  const params = [];
+/* ================= FILTER UI ================= */
+function renderFilter(){
+  const box = document.getElementById("filterBox");
+  box.innerHTML = role === "sales"
+    ? `
+      <label><input id="fNew" type="checkbox"> NEW</label>
+      <label><input id="fNetto" type="checkbox"> NETTO</label>
+      <label><input id="fPpn" type="checkbox"> PPN</label>
+    `
+    : `<label><input id="fNew" type="checkbox"> NEW</label>`;
 
-  if (googleToken) {
-    params.push("token=" + encodeURIComponent(googleToken));
-  }
+  const bind = (id,key)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.onchange = e=>{
+      filter[key] = e.target.checked;
+      page = 1;
+      render();
+    };
+  };
 
-  return params.length ? "?" + params.join("&") : "";
+  bind("fNew","new");
+  bind("fNetto","netto");
+  bind("fPpn","ppn");
 }
 
-/* =====================
-   RENDER + SEARCH + FILTER + PAGINATION
-===================== */
-function renderProduk() {
-   
-  const container = document.getElementById("produk-list");
-  container.innerHTML = "";
+/* ================= RENDER ================= */
+function render(){
 
   let data = allData;
 
-  /* SEARCH */
-  if (searchQuery) {
-    data = data.filter(item =>
-      (item["nama item"] || "").toLowerCase().includes(searchQuery) ||
-      (item.kode || "").toLowerCase().includes(searchQuery)
+  if(search){
+    data = data.filter(x =>
+      (x["nama item"]||"").toLowerCase().includes(search) ||
+      (x.kode||"").toLowerCase().includes(search)
     );
   }
 
-  /* FILTER */
-  if (filterState.new) {
-    data = data.filter(item => item.new === "YES");
-  }
+  if(filter.new) data = data.filter(x => x.new === "YES");
+  if(filter.netto) data = data.filter(x => x.netto === "YES");
+  if(filter.ppn) data = data.filter(x => x.ppn);
 
-  if (filterState.netto) {
-    data = data.filter(item => item.netto === "YES");
-  }
+  const total = Math.ceil(data.length/perPage);
+  const start = (page-1)*perPage;
 
-  if (filterState.ppn) {
-    data = data.filter(item => item.ppn);
-  }
+  const pageData = data.slice(start,start+perPage);
+  renderedData = pageData;
 
-  /* PAGINATION */
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const box = document.getElementById("produk-list");
+  box.innerHTML = "";
 
-  if (currentPage > totalPages) currentPage = 1;
+  pageData.forEach(item=>{
 
-  const start = (currentPage - 1) * itemsPerPage;
-  const pageData = data.slice(start, start + itemsPerPage);
-  currentRenderedData = pageData;
+    const variants = (item.varianData && item.varianData.length)
+      ? item.varianData
+      : [{...item, varian:"-", stock:item.stock}];
 
-  if (!pageData.length) {
-    container.innerHTML = "<p>Data tidak ditemukan</p>";
-    document.getElementById("pagination").innerHTML = "";
-    return;
-  }
+    const active = variants[0];
 
-  pageData.forEach(item => {
-    const detailId = `detail_${item.kode}`;
-    const activeVariant =
-      item.varianData?.[0] || item;
-    
-    const spec = activeVariant.spec || {};
-    
-    const specEntries = Object.entries(spec);
-    
-    const summaryCount = 3;
-    const hasDetail = specEntries.length > 5;
-    
-    const summaryHtml = specEntries
-      .slice(0, summaryCount)
-      .map(([k,v]) => `
-        <div><b>${k}</b>: ${v}</div>
-      `)
+    const spec = active.spec || {};
+    const entries = Object.entries(spec);
+
+    const summary = entries.slice(0,3)
+      .map(([k,v])=>`<div><b>${k}</b>: ${v}</div>`)
       .join("");
 
-    const detailHtml = `
-    <table class="spec-table">
-    ${specEntries
-      .slice(summaryCount)
-      .map(([k,v]) => `
-        <tr>
-          <td>${k}</td>
-          <td>${v}</td>
-        </tr>
-      `).join("")}
-    </table>
-    `;
+    const detail = entries.slice(3)
+      .map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`)
+      .join("");
 
-    let packaging =
-      activeVariant.inner &&
-      activeVariant.inner !== "-"
-        ? `${activeVariant.inner}/${activeVariant.carton} ${activeVariant.satuan || ""}`
-        : `${activeVariant.carton} ${activeVariant.satuan || ""}`;
+    const packaging =
+      active.inner && active.inner !== "-"
+      ? `${active.inner}/${active.carton} ${active.satuan||""}`
+      : `${active.carton} ${active.satuan||""}`;
 
     const div = document.createElement("div");
     div.className = "card";
 
-    console.log("ITEM:", item.kode, item.varianData);
-
     div.innerHTML = `
       <div class="img-box">
-        ${item.netto === "YES" ? `<span class="badge-netto">NETTO</span>` : ""}
-        ${item.new === "YES" ? `<span class="badge-new">NEW</span>` : ""}
+        ${item.netto==="YES" ? `<span class="badge-netto">NETTO</span>` : ""}
+        ${item.new==="YES" ? `<span class="badge-new">NEW</span>` : ""}
         <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
       </div>
 
-      <h3 style="text-align:center;">
-        ${item["nama item"]}
-      </h3>
-
-      ${item.varianData.length > 1 ? `
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          ${item.varianData.map((v,i)=>`
-            <button onclick="changeVariant('${item.kode}', ${i})"
-              style="padding:4px 8px;border:1px solid #ccc;border-radius:6px;">
-              ${v.varian}
-            </button>
-          `).join("")}
-        </div>
-      ` : ""}
-
-      <div class="summary-spec" id="summary_${item.kode}">
-        ${summaryHtml}
-      </div>
-      
-      ${hasDetail ? `
-      <button
-        id="btn_${detailId}"
-        class="detail-btn"
-        onclick="toggleSpec('${detailId}')">
-        ▼ Detail Spesifikasi
-      </button>
-      
-      <div
-        id="${detailId}"
-        class="spec-detail">
-      
-        <div id="detail_content_${item.kode}">
-          ${detailHtml}
-        </div>
-      
-      </div>
-      ` : ""}
-      
-      <div class="meta-row" id="meta_${item.kode}">
-        <div><b>Packaging:</b> ${packaging}</div>
-        <div><b>Stock:</b> ${activeVariant.stock}</div>
-      </div>
+      <h3 style="text-align:center">${item["nama item"]}</h3>
 
       ${
-        userRole === "sales"
-          ? `
-          <p class="price" id="price_${item.kode}">
-            Rp ${Number(activeVariant.harga || 0).toLocaleString("id-ID")}
-            /${activeVariant["satuan"]}
-          </p>
-          `
-          : ""
+        variants.length > 1
+        ? `<div>
+            ${variants.map((v,i)=>
+              `<button onclick="changeVar('${item.kode}',${i})">
+                ${v.varian!=="-"?v.varian:"Default"}
+              </button>`
+            ).join("")}
+          </div>`
+        : ""
+      }
+
+      <div id="sum_${item.kode}">${summary}</div>
+
+      ${
+        detail
+        ? `<button onclick="toggle('${item.kode}')">Detail</button>
+           <div id="det_${item.kode}" class="spec-detail">
+            <table class="spec-table">${detail}</table>
+           </div>`
+        : ""
+      }
+
+      <div class="meta-row" id="meta_${item.kode}">
+        <div>${packaging}</div>
+        <div>Stock: ${active.stock}</div>
+      </div>
+
+      ${role==="sales"
+        ? `<div class="price">Rp ${Number(active.harga||0).toLocaleString("id-ID")}</div>`
+        : ""
       }
     `;
 
-    container.appendChild(div);
+    box.appendChild(div);
   });
 
-  renderPagination(totalPages);
+  renderPage(total);
 }
 
-/* =====================
-   PAGINATION UI
-===================== */
-function renderPagination(totalPages) {
+/* ================= VARIANT ================= */
+function changeVar(kode,i){
+  const item = renderedData.find(x=>x.kode===kode);
+  if(!item) return;
 
+  const v = item.varianData?.[i];
+  if(!v) return;
+
+  document.getElementById("meta_"+kode).innerHTML = `
+    <div>${v.inner}/${v.carton}</div>
+    <div>Stock: ${v.stock}</div>
+  `;
+
+  const sum = Object.entries(v.spec||{})
+    .slice(0,3)
+    .map(([k,x])=>`<div><b>${k}</b>: ${x}</div>`)
+    .join("");
+
+  document.getElementById("sum_"+kode).innerHTML = sum;
+}
+
+/* ================= DETAIL ================= */
+function toggle(id){
+  const el = document.getElementById("det_"+id);
+  el.classList.toggle("open");
+}
+
+/* ================= PAGINATION ================= */
+function renderPage(total){
   const el = document.getElementById("pagination");
   el.innerHTML = "";
 
-  if (totalPages <= 1) return;
-
-  let html = "";
-
-  html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Prev</button>`;
-
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<button onclick="changePage(${i})" style="${i === currentPage ? 'font-weight:bold' : ''}">${i}</button>`;
+  for(let i=1;i<=total;i++){
+    el.innerHTML += `<button onclick="page=${i};render()">${i}</button>`;
   }
-
-  html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
-
-  el.innerHTML = html;
-}
-
-function toggleSpec(id) {
-  const el = document.getElementById(id);
-  const btn = document.getElementById("btn_" + id);
-
-  if (!el) return;
-
-  if (el.style.maxHeight && el.style.maxHeight !== "0px") {
-    el.style.maxHeight = "0px";
-    el.classList.remove("open");
-    btn.textContent = "▼ Detail Spesifikasi";
-  } else {
-    el.classList.add("open");
-    el.style.maxHeight = el.scrollHeight + "px";
-    btn.textContent = "▲ Sembunyikan Detail";
-  }
-}
-
-function changeVariant(kode, index) {
-  const item = currentRenderedData.find(x => x.kode === kode);
-  if (!item || !item.varianData) return;
-
-  const variant = item.varianData[Number(index)];
-  if (!variant) return;
-
-  const specEntries = Object.entries(variant.spec || {});
-  const summaryCount = 3;
-
-  // ===== SUMMARY =====
-  const summaryEl = document.getElementById("summary_" + kode);
-  if (summaryEl) {
-    summaryEl.innerHTML = specEntries
-      .slice(0, summaryCount)
-      .map(([k, v]) => `<div><b>${k}</b>: ${v}</div>`)
-      .join("");
-  }
-
-  // ===== DETAIL =====
-  const detailEl = document.getElementById("detail_content_" + kode);
-  if (detailEl) {
-    detailEl.innerHTML = `
-      <table class="spec-table">
-        ${specEntries
-          .slice(summaryCount)
-          .map(([k, v]) => `
-            <tr>
-              <td>${k}</td>
-              <td>${v}</td>
-            </tr>
-          `).join("")}
-      </table>
-    `;
-  }
-
-  // ===== META =====
-  const packaging =
-    variant.inner && variant.inner !== "-"
-      ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
-      : `${variant.carton} ${variant.satuan || ""}`;
-
-  const metaEl = document.getElementById("meta_" + kode);
-  if (metaEl) {
-    metaEl.innerHTML = `
-      <div><b>Packaging:</b> ${packaging}</div>
-      <div><b>Stock:</b> ${variant.stock}</div>
-    `;
-  }
-
-  // ===== PRICE =====
-  const priceEl = document.getElementById("price_" + kode);
-  if (priceEl) {
-    priceEl.innerHTML = `
-      Rp ${Number(variant.harga || 0).toLocaleString("id-ID")}
-      /${variant.satuan || ""}
-    `;
-  }
-
-  // ===== AUTO RESIZE IF OPEN =====
-  const detailBox = document.getElementById("detail_" + kode);
-  if (detailBox && detailBox.classList.contains("open")) {
-    requestAnimationFrame(() => {
-      detailBox.style.maxHeight = detailBox.scrollHeight + "px";
-    });
-  }
-}
-  
-/* =====================
-   CHANGE PAGE
-===================== */
-function changePage(page) {
-  currentPage = page;
-  renderProduk();
 }
 
 </script>
