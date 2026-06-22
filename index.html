@@ -588,7 +588,11 @@ function renderProduk() {
       <div
         id="${detailId}"
         class="spec-detail">
-        ${detailHtml}
+      
+        <div id="detail_content_${item.kode}">
+          ${detailHtml}
+        </div>
+      
       </div>
       ` : ""}
       
@@ -656,53 +660,78 @@ function toggleSpec(id) {
 }
 
 function changeVariant(kode, index) {
+  const item = currentRenderedData.find(x => x.kode === kode);
+  if (!item || !item.varianData) return;
 
-  const item =
-    currentRenderedData.find(x => x.kode === kode);
+  const variant = item.varianData[Number(index)];
+  if (!variant) return;
 
-  if (!item) return;
-
-  const variant =
-    item.varianData[Number(index)];
-
-  const specEntries =
-    Object.entries(variant.spec || {});
-
+  const specEntries = Object.entries(variant.spec || {});
   const summaryCount = 3;
 
-  document.getElementById(
-    "summary_" + kode
-  ).innerHTML =
-    specEntries
-      .slice(0, summaryCount)
-      .map(([k,v]) =>
-        `<div><b>${k}</b>: ${v}</div>`
-      )
-      .join("");
+  // ===== CACHE ELEMENTS (biar cepat) =====
+  const summaryEl = document.getElementById("summary_" + kode);
+  const detailEl = document.getElementById("detail_content_" + kode);
+  const detailBox = document.getElementById("detail_" + kode);
+  const metaEl = document.getElementById("meta_" + kode);
+  const priceEl = document.getElementById("price_" + kode);
 
-  let packaging =
+  // ===== UPDATE SUMMARY (minimal DOM) =====
+  if (summaryEl) {
+    summaryEl.innerHTML = specEntries
+      .slice(0, summaryCount)
+      .map(([k, v]) => `<div><b>${k}</b>: ${v}</div>`)
+      .join("");
+  }
+
+  // ===== UPDATE DETAIL (minimal DOM) =====
+  if (detailEl) {
+    let html = "";
+
+    for (let i = summaryCount; i < specEntries.length; i++) {
+      const [k, v] = specEntries[i];
+      html += `
+        <tr>
+          <td>${k}</td>
+          <td>${v}</td>
+        </tr>
+      `;
+    }
+
+    detailEl.innerHTML = `
+      <table class="spec-table">
+        ${html}
+      </table>
+    `;
+  }
+
+  // ===== PACKAGING =====
+  const packaging =
     variant.inner && variant.inner !== "-"
       ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
       : `${variant.carton} ${variant.satuan || ""}`;
 
-  document.getElementById(
-    "meta_" + kode
-  ).innerHTML = `
-    <div><b>Packaging:</b> ${packaging}</div>
-    <div><b>Stock:</b> ${variant.stock}</div>
-  `;
+  // ===== UPDATE META =====
+  if (metaEl) {
+    metaEl.innerHTML = `
+      <div><b>Packaging:</b> ${packaging}</div>
+      <div><b>Stock:</b> ${variant.stock}</div>
+    `;
+  }
 
-  const priceEl =
-    document.getElementById(
-      "price_" + kode
-    );
-
+  // ===== UPDATE PRICE =====
   if (priceEl) {
-    priceEl.innerHTML =
-      `Rp ${Number(
-        variant.harga || 0
-      ).toLocaleString("id-ID")}
-      /${variant.satuan}`;
+    priceEl.innerHTML = `
+      Rp ${Number(variant.harga || 0).toLocaleString("id-ID")}
+      /${variant.satuan || ""}
+    `;
+  }
+
+  // ===== SMOOTH HEIGHT UPDATE (NO LAG) =====
+  if (detailBox && detailBox.classList.contains("open")) {
+    requestAnimationFrame(() => {
+      detailBox.style.maxHeight = detailBox.scrollHeight + "px";
+    });
   }
 }
   
