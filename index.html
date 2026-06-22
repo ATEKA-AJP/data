@@ -561,16 +561,15 @@ function renderProduk() {
         ${item["nama item"]}
       </h3>
 
-      ${item.varianData && item.varianData.length > 1 ? `
-      <select
-        onchange="changeVariant('${item.kode}', this.value)"
-        style="width:100%;padding:8px;margin-bottom:10px;">
-        ${item.varianData.map((v,i)=>`
-          <option value="${i}">
-            ${v.varian}
-          </option>
-        `).join("")}
-      </select>
+      ${item.varianData.length > 1 ? `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${item.varianData.map((v,i)=>`
+            <button onclick="changeVariant('${item.kode}', ${i})"
+              style="padding:4px 8px;border:1px solid #ccc;border-radius:6px;">
+              ${v.varian}
+            </button>
+          `).join("")}
+        </div>
       ` : ""}
 
       <div class="summary-spec" id="summary_${item.kode}">
@@ -661,7 +660,7 @@ function toggleSpec(id) {
 
 function changeVariant(kode, index) {
   const item = currentRenderedData.find(x => x.kode === kode);
-  if (!item || !item.varianData) return;
+  if (!item || !item.varianData || !item.varianData.length) return;
 
   const variant = item.varianData[Number(index)];
   if (!variant) return;
@@ -669,14 +668,10 @@ function changeVariant(kode, index) {
   const specEntries = Object.entries(variant.spec || {});
   const summaryCount = 3;
 
-  // ===== CACHE ELEMENTS (biar cepat) =====
+  // =====================
+  // SUMMARY SPEC (tanpa rebuild card)
+  // =====================
   const summaryEl = document.getElementById("summary_" + kode);
-  const detailEl = document.getElementById("detail_content_" + kode);
-  const detailBox = document.getElementById("detail_" + kode);
-  const metaEl = document.getElementById("meta_" + kode);
-  const priceEl = document.getElementById("price_" + kode);
-
-  // ===== UPDATE SUMMARY (minimal DOM) =====
   if (summaryEl) {
     summaryEl.innerHTML = specEntries
       .slice(0, summaryCount)
@@ -684,26 +679,60 @@ function changeVariant(kode, index) {
       .join("");
   }
 
-  // ===== UPDATE DETAIL (minimal DOM) =====
+  // =====================
+  // DETAIL SPEC
+  // =====================
+  const detailEl = document.getElementById("detail_content_" + kode);
   if (detailEl) {
-    let html = "";
-
-    for (let i = summaryCount; i < specEntries.length; i++) {
-      const [k, v] = specEntries[i];
-      html += `
-        <tr>
-          <td>${k}</td>
-          <td>${v}</td>
-        </tr>
-      `;
-    }
-
     detailEl.innerHTML = `
       <table class="spec-table">
-        ${html}
+        ${specEntries
+          .slice(summaryCount)
+          .map(([k, v]) => `
+            <tr>
+              <td>${k}</td>
+              <td>${v}</td>
+            </tr>
+          `).join("")}
       </table>
     `;
   }
+
+  // =====================
+  // PACKAGING + STOCK
+  // =====================
+  const packaging =
+    variant.inner && variant.inner !== "-"
+      ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
+      : `${variant.carton} ${variant.satuan || ""}`;
+
+  const metaEl = document.getElementById("meta_" + kode);
+  if (metaEl) {
+    metaEl.innerHTML = `
+      <div><b>Packaging:</b> ${packaging}</div>
+      <div><b>Stock:</b> ${variant.stock}</div>
+    `;
+  }
+
+  // =====================
+  // PRICE
+  // =====================
+  const priceEl = document.getElementById("price_" + kode);
+  if (priceEl) {
+    priceEl.innerHTML = `
+      Rp ${Number(variant.harga || 0).toLocaleString("id-ID")}
+      /${variant.satuan || ""}
+    `;
+  }
+
+  // =====================
+  // AUTO RESIZE DETAIL IF OPEN
+  // =====================
+  const detailBox = document.getElementById("detail_" + kode);
+  if (detailBox && detailBox.classList.contains("open")) {
+    detailBox.style.maxHeight = detailBox.scrollHeight + "px";
+  }
+}
 
   // ===== PACKAGING =====
   const packaging =
