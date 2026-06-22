@@ -660,7 +660,7 @@ function toggleSpec(id) {
 
 function changeVariant(kode, index) {
   const item = currentRenderedData.find(x => x.kode === kode);
-  if (!item || !item.varianData || !item.varianData.length) return;
+  if (!item || !item.varianData) return;
 
   const variant = item.varianData[Number(index)];
   if (!variant) return;
@@ -668,9 +668,7 @@ function changeVariant(kode, index) {
   const specEntries = Object.entries(variant.spec || {});
   const summaryCount = 3;
 
-  // =====================
-  // SUMMARY SPEC (tanpa rebuild card)
-  // =====================
+  // ===== SUMMARY =====
   const summaryEl = document.getElementById("summary_" + kode);
   if (summaryEl) {
     summaryEl.innerHTML = specEntries
@@ -679,9 +677,7 @@ function changeVariant(kode, index) {
       .join("");
   }
 
-  // =====================
-  // DETAIL SPEC
-  // =====================
+  // ===== DETAIL =====
   const detailEl = document.getElementById("detail_content_" + kode);
   if (detailEl) {
     detailEl.innerHTML = `
@@ -698,9 +694,7 @@ function changeVariant(kode, index) {
     `;
   }
 
-  // =====================
-  // PACKAGING + STOCK
-  // =====================
+  // ===== META =====
   const packaging =
     variant.inner && variant.inner !== "-"
       ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
@@ -714,9 +708,7 @@ function changeVariant(kode, index) {
     `;
   }
 
-  // =====================
-  // PRICE
-  // =====================
+  // ===== PRICE =====
   const priceEl = document.getElementById("price_" + kode);
   if (priceEl) {
     priceEl.innerHTML = `
@@ -725,38 +717,8 @@ function changeVariant(kode, index) {
     `;
   }
 
-  // =====================
-  // AUTO RESIZE DETAIL IF OPEN
-  // =====================
+  // ===== AUTO RESIZE IF OPEN =====
   const detailBox = document.getElementById("detail_" + kode);
-  if (detailBox && detailBox.classList.contains("open")) {
-    detailBox.style.maxHeight = detailBox.scrollHeight + "px";
-  }
-}
-
-  // ===== PACKAGING =====
-  const packaging =
-    variant.inner && variant.inner !== "-"
-      ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
-      : `${variant.carton} ${variant.satuan || ""}`;
-
-  // ===== UPDATE META =====
-  if (metaEl) {
-    metaEl.innerHTML = `
-      <div><b>Packaging:</b> ${packaging}</div>
-      <div><b>Stock:</b> ${variant.stock}</div>
-    `;
-  }
-
-  // ===== UPDATE PRICE =====
-  if (priceEl) {
-    priceEl.innerHTML = `
-      Rp ${Number(variant.harga || 0).toLocaleString("id-ID")}
-      /${variant.satuan || ""}
-    `;
-  }
-
-  // ===== SMOOTH HEIGHT UPDATE (NO LAG) =====
   if (detailBox && detailBox.classList.contains("open")) {
     requestAnimationFrame(() => {
       detailBox.style.maxHeight = detailBox.scrollHeight + "px";
