@@ -550,6 +550,8 @@ function renderProduk() {
     const div = document.createElement("div");
     div.className = "card";
 
+    console.log("ITEM:", item.kode, item.varianData);
+
     div.innerHTML = `
       <div class="img-box">
         ${item.netto === "YES" ? `<span class="badge-netto">NETTO</span>` : ""}
