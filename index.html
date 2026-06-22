@@ -465,7 +465,9 @@ function buildQuery() {
    RENDER + SEARCH + FILTER + PAGINATION
 ===================== */
 function renderProduk() {
-
+  
+  let currentRenderedData = [];
+  
   const container = document.getElementById("produk-list");
   container.innerHTML = "";
 
@@ -499,6 +501,7 @@ function renderProduk() {
 
   const start = (currentPage - 1) * itemsPerPage;
   const pageData = data.slice(start, start + itemsPerPage);
+  currentRenderedData = pageData;
 
   if (!pageData.length) {
     container.innerHTML = "<p>Data tidak ditemukan</p>";
@@ -508,7 +511,11 @@ function renderProduk() {
 
   pageData.forEach(item => {
     const detailId = `detail_${item.kode}`;
-    const spec = item.spec || {};
+    const activeVariant =
+      item.varianData?.[0] || item;
+    
+    const spec = activeVariant.spec || {};
+    
     const specEntries = Object.entries(spec);
     
     const summaryCount = 3;
@@ -552,7 +559,19 @@ function renderProduk() {
         ${item["nama item"]}
       </h3>
 
-      <div class="summary-spec">
+      ${item.varianData && item.varianData.length > 1 ? `
+      <select
+        onchange="changeVariant('${item.kode}', this.value)"
+        style="width:100%;padding:8px;margin-bottom:10px;">
+        ${item.varianData.map((v,i)=>`
+          <option value="${i}">
+            ${v.varian}
+          </option>
+        `).join("")}
+      </select>
+      ` : ""}
+
+      <div class="summary-spec" id="summary_${item.kode}">
         ${summaryHtml}
       </div>
       
@@ -571,7 +590,7 @@ function renderProduk() {
       </div>
       ` : ""}
       
-      <div class="meta-row">
+      <div class="meta-row" id="meta_${item.kode}">
         <div><b>Packaging:</b> ${packaging}</div>
         <div><b>Stock:</b> ${item.stock}</div>
       </div>
@@ -579,7 +598,7 @@ function renderProduk() {
       ${
         userRole === "sales"
           ? `
-          <p class="price">
+          <p class="price" id="price_${item.kode}">
             Rp ${Number(item.harga || 0).toLocaleString("id-ID")}
             /${item["satuan"]}
           </p>
@@ -631,6 +650,57 @@ function toggleSpec(id) {
     el.classList.add("open");
     el.style.maxHeight = el.scrollHeight + "px";
     btn.textContent = "▲ Sembunyikan Detail";
+  }
+}
+
+function changeVariant(kode, index) {
+
+  const item =
+    currentRenderedData.find(x => x.kode === kode);
+
+  if (!item) return;
+
+  const variant =
+    item.varianData[Number(index)];
+
+  const specEntries =
+    Object.entries(variant.spec || {});
+
+  const summaryCount = 3;
+
+  document.getElementById(
+    "summary_" + kode
+  ).innerHTML =
+    specEntries
+      .slice(0, summaryCount)
+      .map(([k,v]) =>
+        `<div><b>${k}</b>: ${v}</div>`
+      )
+      .join("");
+
+  let packaging =
+    variant.inner && variant.inner !== "-"
+      ? `${variant.inner}/${variant.carton} ${variant.satuan || ""}`
+      : `${variant.carton} ${variant.satuan || ""}`;
+
+  document.getElementById(
+    "meta_" + kode
+  ).innerHTML = `
+    <div><b>Packaging:</b> ${packaging}</div>
+    <div><b>Stock:</b> ${variant.stock}</div>
+  `;
+
+  const priceEl =
+    document.getElementById(
+      "price_" + kode
+    );
+
+  if (priceEl) {
+    priceEl.innerHTML =
+      `Rp ${Number(
+        variant.harga || 0
+      ).toLocaleString("id-ID")}
+      /${variant.satuan}`;
   }
 }
   
