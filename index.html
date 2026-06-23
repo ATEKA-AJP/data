@@ -1,136 +1,127 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Katalog Produk</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katalog Produk</title>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<style>
-body {
-  font-family: Arial;
-  margin: 0;
-  padding: 20px;
-  background: #f5f5f5;
-}
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
 
-h2 { text-align:center; }
+    h2 { text-align: center; }
 
-#userInfo { text-align:center; margin-bottom:10px; }
+    #userInfo {
+      text-align:center;
+      margin-bottom:10px;
+    }
 
-.container {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  gap:24px;
-}
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, 300px);
+      gap: 80px;
+      justify-content: center;
+    }
 
-.card {
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+    @media (max-width: 600px){
+      .container { grid-template-columns: 1fr; }
+    }
 
-.card img {
-  width:100%;
-  max-height:260px;
-  object-fit:contain;
-}
+    .card {
+      background: white;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
 
-.img-box { position:relative; }
+    .card img {
+      width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+    }
 
-.badge-netto, .badge-new {
-  position:absolute;
-  right:10px;
-  color:white;
-  padding:4px 8px;
-  font-size:11px;
-  border-radius:5px;
-  font-weight:bold;
-}
+    .img-box { position: relative; }
 
-.badge-netto { top:30px; background:#4caf50; }
-.badge-new { top:10px; background:#c12327; }
+    .badge-netto {
+      position: absolute;
+      top: 30px;
+      right: 10px;
+      background: #4caf50;
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
 
-.filter-box {
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  flex-wrap:wrap;
-  margin:10px 0;
-}
+    .badge-new {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #c12327;
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
 
-.filter-box label {
-  background:white;
-  padding:8px 12px;
-  border:1px solid #ddd;
-  border-radius:8px;
-  cursor:pointer;
-}
+    .filter-box {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
 
-.search-box { text-align:center; margin-bottom:10px; }
+    .filter-box label {
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
 
-#searchInput {
-  padding:8px;
-  width:250px;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
+    #logoutBtn {
+      display: none;
+      margin: 10px auto;
+      padding: 8px 12px;
+      border: none;
+      background: #e53935;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-.price {
-  font-size:18px;
-  font-weight:bold;
-  color:#e53935;
-  margin-top:auto;
-}
+    #searchInput {
+      padding: 8px;
+      width: 250px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-.meta-row {
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  border-top:1px solid #eee;
-  padding-top:8px;
-}
+    .search-box {
+      text-align:center;
+      margin-bottom:10px;
+    }
 
-.detail-btn {
-  background:none;
-  border:none;
-  color:#1976d2;
-  cursor:pointer;
-  text-align:left;
-}
+    #pagination {
+      text-align:center;
+      margin:20px;
+    }
 
-.spec-detail {
-  max-height:0;
-  overflow:hidden;
-  transition:0.3s ease;
-}
-
-.spec-detail.open {
-  margin-top:10px;
-  border-top:1px solid #eee;
-  padding-top:10px;
-}
-
-.spec-table {
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-
-.spec-table td {
-  padding:6px;
-}
-
-#pagination {
-  text-align:center;
-  margin:20px;
-}
-</style>
+    #pagination button {
+      margin: 0 3px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
@@ -138,234 +129,380 @@ h2 { text-align:center; }
 <h2>Katalog Produk</h2>
 
 <div id="userInfo"></div>
+
 <div id="g_id_signin"></div>
+
 <button id="logoutBtn">Logout</button>
 
 <div class="search-box">
-  <input id="searchInput" placeholder="Search produk...">
+  <input id="searchInput" type="text" placeholder="Search produk...">
 </div>
 
 <div id="filterBox" class="filter-box"></div>
+
 <div id="produk-list" class="container"></div>
+
 <div id="pagination"></div>
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyhqfHg8tc1aWaDiDhCZThIQd7lbWztxGl2PpJQQb4fNWUUXH5nglmiFRy4xJpnvrcF/exec";
 
-let token = localStorage.getItem("googleToken");
-let role = "public";
+/* =====================
+   STATE
+===================== */
+let googleToken = null;
+let userRole = "public";
 let allData = [];
-let renderedData = [];
 
-let search = "";
-let page = 1;
-const perPage = 12;
+let lastEmail = localStorage.getItem("lastEmail") || "";
+let searchQuery = "";
 
-let filter = { new:false, netto:false, ppn:false };
+let currentPage = 1;
+const itemsPerPage = 12;
 
-/* ================= INIT ================= */
-window.onload = () => {
+let filterState = {
+  new: false,
+  netto: false,
+  ppn: false
+};
+
+/* =====================
+   INIT
+===================== */
+window.onload = function () {
+
   google.accounts.id.initialize({
     client_id: "317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com",
-    callback: login
+    callback: handleCredentialResponse
   });
 
   google.accounts.id.renderButton(
     document.getElementById("g_id_signin"),
-    { theme:"outline", size:"large" }
+    { theme: "outline", size: "large" }
   );
 
-  document.getElementById("searchInput").oninput = e=>{
-    search = e.target.value.toLowerCase();
-    page = 1;
-    render();
-  };
+  document.getElementById("logoutBtn").onclick = logout;
 
-  load();
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    currentPage = 1;
+    renderProduk();
+  });
+
+  googleToken = localStorage.getItem("googleToken");
+
+  if (googleToken) {
+
+    if (isTokenExpired(googleToken)) {
+      forceLogout();
+    } else {
+      try {
+        const payload = JSON.parse(atob(googleToken.split('.')[1]));
+
+        lastEmail = payload.email;
+        localStorage.setItem("lastEmail", lastEmail);
+
+        document.getElementById("userInfo").innerText =
+          "Login: " + payload.email;
+
+        document.getElementById("logoutBtn").style.display = "block";
+
+      } catch (e) {
+        forceLogout();
+      }
+    }
+
+  } else {
+    if (lastEmail) {
+      document.getElementById("userInfo").innerText =
+        "Last login: " + lastEmail;
+    }
+  }
+
+  loadProduk();
 };
 
-/* ================= LOGIN ================= */
-function login(res){
-  token = res.credential;
-  localStorage.setItem("googleToken", token);
-  load();
+/* =====================
+   LOGIN
+===================== */
+function handleCredentialResponse(response) {
+
+  googleToken = response.credential;
+  localStorage.setItem("googleToken", googleToken);
+
+  const payload = JSON.parse(atob(googleToken.split('.')[1]));
+
+  lastEmail = payload.email;
+  localStorage.setItem("lastEmail", lastEmail);
+
+  document.getElementById("userInfo").innerText =
+    "Login: " + payload.email;
+
+  document.getElementById("logoutBtn").style.display = "block";
+
+  loadProduk();
 }
 
-/* ================= LOAD ================= */
-async function load(){
-  const res = await fetch(API_URL + (token ? "?token="+token : ""));
+/* =====================
+   TOKEN CHECK
+===================== */
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp < Math.floor(Date.now() / 1000);
+  } catch (e) {
+    return true;
+  }
+}
+
+/* =====================
+   LOGOUT
+===================== */
+function logout() {
+  localStorage.removeItem("googleToken");
+  googleToken = null;
+  userRole = "public";
+
+  document.getElementById("logoutBtn").style.display = "none";
+
+  if (lastEmail) {
+    document.getElementById("userInfo").innerText =
+      "Last login: " + lastEmail;
+  }
+
+  filterState = { new: false, netto: false, ppn: false };
+  currentPage = 1;
+
+  loadProduk();
+}
+
+/* =====================
+   FORCE LOGOUT
+===================== */
+function forceLogout() {
+  localStorage.removeItem("googleToken");
+  googleToken = null;
+  userRole = "public";
+
+  document.getElementById("logoutBtn").style.display = "none";
+
+  if (lastEmail) {
+    document.getElementById("userInfo").innerText =
+      "Last login: " + lastEmail;
+  }
+
+  filterState = { new: false, netto: false, ppn: false };
+  currentPage = 1;
+
+  loadProduk();
+}
+
+/* =====================
+   FILTER UI
+===================== */
+function renderFilters(role) {
+
+  const box = document.getElementById("filterBox");
+  box.innerHTML = "";
+
+  userRole = role;
+
+  if (role === "public") {
+    box.innerHTML = `
+      <label><input type="checkbox" id="filterNew"> NEW</label>
+    `;
+  }
+
+  if (role === "sales") {
+    box.innerHTML = `
+      <label><input type="checkbox" id="filterNew"> NEW</label>
+      <label><input type="checkbox" id="filterNetto"> NETTO</label>
+      <label><input type="checkbox" id="filterPpn"> PPN</label>
+    `;
+  }
+
+  bindFilters();
+}
+
+/* =====================
+   FILTER EVENTS
+===================== */
+function bindFilters() {
+
+  const newEl = document.getElementById("filterNew");
+  const nettoEl = document.getElementById("filterNetto");
+  const ppnEl = document.getElementById("filterPpn");
+
+  if (newEl) {
+    newEl.onchange = (e) => {
+      filterState.new = e.target.checked;
+      currentPage = 1;
+      renderProduk();
+    };
+  }
+
+  if (nettoEl) {
+    nettoEl.onchange = (e) => {
+      filterState.netto = e.target.checked;
+      currentPage = 1;
+      renderProduk();
+    };
+  }
+
+  if (ppnEl) {
+    ppnEl.onchange = (e) => {
+      filterState.ppn = e.target.checked;
+      currentPage = 1;
+      renderProduk();
+    };
+  }
+}
+
+/* =====================
+   LOAD DATA
+===================== */
+async function loadProduk() {
+
+  const res = await fetch(API_URL + buildQuery());
   const json = await res.json();
 
-  role = json.role;
+  userRole = json.role;
   allData = json.data || [];
 
-  renderFilter();
-  render();
+  renderFilters(json.role);
+  renderProduk();
 }
 
-/* ================= FILTER UI ================= */
-function renderFilter(){
-  const box = document.getElementById("filterBox");
-  box.innerHTML = role === "sales"
-    ? `
-      <label><input id="fNew" type="checkbox"> NEW</label>
-      <label><input id="fNetto" type="checkbox"> NETTO</label>
-      <label><input id="fPpn" type="checkbox"> PPN</label>
-    `
-    : `<label><input id="fNew" type="checkbox"> NEW</label>`;
+/* =====================
+   QUERY
+===================== */
+function buildQuery() {
+  const params = [];
 
-  const bind = (id,key)=>{
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.onchange = e=>{
-      filter[key] = e.target.checked;
-      page = 1;
-      render();
-    };
-  };
+  if (googleToken) {
+    params.push("token=" + encodeURIComponent(googleToken));
+  }
 
-  bind("fNew","new");
-  bind("fNetto","netto");
-  bind("fPpn","ppn");
+  return params.length ? "?" + params.join("&") : "";
 }
 
-/* ================= RENDER ================= */
-function render(){
+/* =====================
+   RENDER + SEARCH + FILTER + PAGINATION
+===================== */
+function renderProduk() {
+
+  const container = document.getElementById("produk-list");
+  container.innerHTML = "";
 
   let data = allData;
 
-  if(search){
-    data = data.filter(x =>
-      (x["nama item"]||"").toLowerCase().includes(search) ||
-      (x.kode||"").toLowerCase().includes(search)
+  /* SEARCH */
+  if (searchQuery) {
+    data = data.filter(item =>
+      (item["nama item"] || "").toLowerCase().includes(searchQuery) ||
+      (item.kode || "").toLowerCase().includes(searchQuery)
     );
   }
 
-  if(filter.new) data = data.filter(x => x.new === "YES");
-  if(filter.netto) data = data.filter(x => x.netto === "YES");
-  if(filter.ppn) data = data.filter(x => x.ppn);
+  /* FILTER */
+  if (filterState.new) {
+    data = data.filter(item => item.new === "YES");
+  }
 
-  const total = Math.ceil(data.length/perPage);
-  const start = (page-1)*perPage;
+  if (filterState.netto) {
+    data = data.filter(item => item.netto === "YES");
+  }
 
-  const pageData = data.slice(start,start+perPage);
-  renderedData = pageData;
+  if (filterState.ppn) {
+    data = data.filter(item => item.ppn);
+  }
 
-  const box = document.getElementById("produk-list");
-  box.innerHTML = "";
+  /* PAGINATION */
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
-  pageData.forEach(item=>{
+  if (currentPage > totalPages) currentPage = 1;
 
-    const variants = (item.varianData && item.varianData.length)
-      ? item.varianData
-      : [{...item, varian:"-", stock:item.stock}];
+  const start = (currentPage - 1) * itemsPerPage;
+  const pageData = data.slice(start, start + itemsPerPage);
 
-    const active = variants[0];
+  if (!pageData.length) {
+    container.innerHTML = "<p>Data tidak ditemukan</p>";
+    document.getElementById("pagination").innerHTML = "";
+    return;
+  }
 
-    const spec = active.spec || {};
-    const entries = Object.entries(spec);
+  pageData.forEach(item => {
 
-    const summary = entries.slice(0,3)
-      .map(([k,v])=>`<div><b>${k}</b>: ${v}</div>`)
+    const spec = item.spec || {};
+    const specHtml = Object.entries(spec)
+      .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
       .join("");
 
-    const detail = entries.slice(3)
-      .map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`)
-      .join("");
-
-    const packaging =
-      active.inner && active.inner !== "-"
-      ? `${active.inner}/${active.carton} ${active.satuan||""}`
-      : `${active.carton} ${active.satuan||""}`;
+    let packaging = item.inner && item.inner !== "-"
+      ? `${item.inner}/${item.carton} ${item.satuan || ""}`
+      : `${item.carton} ${item.satuan || ""}`;
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <div class="img-box">
-        ${item.netto==="YES" ? `<span class="badge-netto">NETTO</span>` : ""}
-        ${item.new==="YES" ? `<span class="badge-new">NEW</span>` : ""}
+        ${item.netto === "YES" ? `<span class="badge-netto">NETTO</span>` : ""}
+        ${item.new === "YES" ? `<span class="badge-new">NEW</span>` : ""}
         <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
       </div>
 
-      <h3 style="text-align:center">${item["nama item"]}</h3>
+      <h3 style="text-align:center;">${item["nama item"]}</h3>
+
+      ${specHtml}
+
+      <p><b>Packaging:</b> ${packaging} </p>
+
+      <p><b>Stock:</b> ${item.stock}</p>
 
       ${
-        variants.length > 1
-        ? `<div>
-            ${variants.map((v,i)=>
-              `<button onclick="changeVar('${item.kode}',${i})">
-                ${v.varian!=="-"?v.varian:"Default"}
-              </button>`
-            ).join("")}
-          </div>`
-        : ""
-      }
-
-      <div id="sum_${item.kode}">${summary}</div>
-
-      ${
-        detail
-        ? `<button onclick="toggle('${item.kode}')">Detail</button>
-           <div id="det_${item.kode}" class="spec-detail">
-            <table class="spec-table">${detail}</table>
-           </div>`
-        : ""
-      }
-
-      <div class="meta-row" id="meta_${item.kode}">
-        <div>${packaging}</div>
-        <div>Stock: ${active.stock}</div>
-      </div>
-
-      ${role==="sales"
-        ? `<div class="price">Rp ${Number(active.harga||0).toLocaleString("id-ID")}</div>`
-        : ""
+        userRole === "sales"
+          ? `<p><b>Harga:</b> Rp ${Number(item.harga || 0).toLocaleString("id-ID")}/${item["satuan"]}</p>`
+          : ""
       }
     `;
 
-    box.appendChild(div);
+    container.appendChild(div);
   });
 
-  renderPage(total);
+  renderPagination(totalPages);
 }
 
-/* ================= VARIANT ================= */
-function changeVar(kode,i){
-  const item = renderedData.find(x=>x.kode===kode);
-  if(!item) return;
+/* =====================
+   PAGINATION UI
+===================== */
+function renderPagination(totalPages) {
 
-  const v = item.varianData?.[i];
-  if(!v) return;
-
-  document.getElementById("meta_"+kode).innerHTML = `
-    <div>${v.inner}/${v.carton}</div>
-    <div>Stock: ${v.stock}</div>
-  `;
-
-  const sum = Object.entries(v.spec||{})
-    .slice(0,3)
-    .map(([k,x])=>`<div><b>${k}</b>: ${x}</div>`)
-    .join("");
-
-  document.getElementById("sum_"+kode).innerHTML = sum;
-}
-
-/* ================= DETAIL ================= */
-function toggle(id){
-  const el = document.getElementById("det_"+id);
-  el.classList.toggle("open");
-}
-
-/* ================= PAGINATION ================= */
-function renderPage(total){
   const el = document.getElementById("pagination");
   el.innerHTML = "";
 
-  for(let i=1;i<=total;i++){
-    el.innerHTML += `<button onclick="page=${i};render()">${i}</button>`;
+  if (totalPages <= 1) return;
+
+  let html = "";
+
+  html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Prev</button>`;
+
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button onclick="changePage(${i})" style="${i === currentPage ? 'font-weight:bold' : ''}">${i}</button>`;
   }
+
+  html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+
+  el.innerHTML = html;
+}
+
+/* =====================
+   CHANGE PAGE
+===================== */
+function changePage(page) {
+  currentPage = page;
+  renderProduk();
 }
 
 </script>
