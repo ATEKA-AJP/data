@@ -1,511 +1,192 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Katalog Produk</title>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta charset="UTF-8">
 
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
-    }
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    h2 { text-align: center; }
+    <title>AJP Web Catalog</title>
 
-    #userInfo {
-      text-align:center;
-      margin-bottom:10px;
-    }
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/products.css">
+    <link rel="stylesheet" href="css/roleMenu.css">
 
-    .container {
-      display: grid;
-      grid-template-columns: repeat(2, 300px);
-      gap: 80px;
-      justify-content: center;
-    }
-
-    @media (max-width: 600px){
-      .container { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: white;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    .card img {
-      width: 100%;
-      max-height: 260px;
-      object-fit: contain;
-    }
-
-    .img-box { position: relative; }
-
-    .badge-netto {
-      position: absolute;
-      top: 30px;
-      right: 10px;
-      background: #4caf50;
-      color: white;
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .badge-new {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #c12327;
-      color: white;
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .filter-box {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 10px 0;
-      flex-wrap: wrap;
-    }
-
-    .filter-box label {
-      background: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      cursor: pointer;
-    }
-
-    #logoutBtn {
-      display: none;
-      margin: 10px auto;
-      padding: 8px 12px;
-      border: none;
-      background: #e53935;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #searchInput {
-      padding: 8px;
-      width: 250px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .search-box {
-      text-align:center;
-      margin-bottom:10px;
-    }
-
-    #pagination {
-      text-align:center;
-      margin:20px;
-    }
-
-    #pagination button {
-      margin: 0 3px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-  </style>
 </head>
 
 <body>
 
-<h2>Katalog Produk</h2>
+    <!-- HEADER -->
 
-<div id="userInfo"></div>
+    <header class="header">
 
-<div id="g_id_signin"></div>
+        <div class="logo">
 
-<button id="logoutBtn">Logout</button>
+            AJP
 
-<div class="search-box">
-  <input id="searchInput" type="text" placeholder="Search produk...">
-</div>
+        </div>
 
-<div id="filterBox" class="filter-box"></div>
+        <div class="search-box">
 
-<div id="produk-list" class="container"></div>
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Cari produk...">
 
-<div id="pagination"></div>
+        </div>
 
-<script>
+        <div class="user-menu btn-login-nav" id="loginButton" title="Login Sales">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-user">
+                <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+            </svg>
+        </div>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzHmTy2lF2o3i7SWbJLnT6Pb82ttZ3AjTSMblggIcK3weaGCuBMNHtvQZoglISzYGR1Lg/exec";
+    </header>
 
-/* =====================
-   STATE
-===================== */
-let googleToken = null;
-let userRole = "public";
-let allData = [];
+    <!-- ROLE MENU -->
 
-let lastEmail = localStorage.getItem("lastEmail") || "";
-let searchQuery = "";
+    <nav
+        class="role-menu"
+        id="roleMenu"
+        style="display:none">
 
-let currentPage = 1;
-const itemsPerPage = 12;
+        <a
+            id="menuProducts"
+            class="active"
+            href="#">
 
-let filterState = {
-  new: false,
-  netto: false,
-  ppn: false
-};
+            Produk
 
-/* =====================
-   INIT
-===================== */
-window.onload = function () {
+        </a>
 
-  google.accounts.id.initialize({
-    client_id: "317305463836-el7i52ferjgevc5t31r8ra3r47abbppf.apps.googleusercontent.com",
-    callback: handleCredentialResponse
-  });
+        <a
+            id="menuOrders"
+            href="#">
 
-  google.accounts.id.renderButton(
-    document.getElementById("g_id_signin"),
-    { theme: "outline", size: "large" }
-  );
+            Order
+            <span id="cartBadge"
+                  style="display:none;background:#EF4444;color:#fff;border-radius:999px;
+                         font-size:11px;font-weight:700;padding:1px 6px;margin-left:4px;
+                         vertical-align:middle;">
+                0
+            </span>
 
-  document.getElementById("logoutBtn").onclick = logout;
+        </a>
 
-  document.getElementById("searchInput").addEventListener("input", (e) => {
-    searchQuery = e.target.value.toLowerCase();
-    currentPage = 1;
-    renderProduk();
-  });
+        <a
+            id="menuUpload"
+            href="#">
 
-  googleToken = localStorage.getItem("googleToken");
+            Upload
 
-  if (googleToken) {
+        </a>
 
-    if (isTokenExpired(googleToken)) {
-      forceLogout();
-    } else {
-      try {
-        const payload = JSON.parse(atob(googleToken.split('.')[1]));
+        <a
+            id="menuUnmapped"
+            href="#">
 
-        lastEmail = payload.email;
-        localStorage.setItem("lastEmail", lastEmail);
+            Unmapped
 
-        document.getElementById("userInfo").innerText =
-          "Login: " + payload.email;
+        </a>
 
-        document.getElementById("logoutBtn").style.display = "block";
+        <a
+            id="menuMapping"
+            href="#">
 
-      } catch (e) {
-        forceLogout();
-      }
-    }
+            Mapping
 
-  } else {
-    if (lastEmail) {
-      document.getElementById("userInfo").innerText =
-        "Last login: " + lastEmail;
-    }
-  }
+        </a>
 
-  loadProduk();
-};
+        <a
+            id="menuUsers"
+            href="#">
 
-/* =====================
-   LOGIN
-===================== */
-function handleCredentialResponse(response) {
-
-  googleToken = response.credential;
-  localStorage.setItem("googleToken", googleToken);
-
-  const payload = JSON.parse(atob(googleToken.split('.')[1]));
-
-  lastEmail = payload.email;
-  localStorage.setItem("lastEmail", lastEmail);
-
-  document.getElementById("userInfo").innerText =
-    "Login: " + payload.email;
-
-  document.getElementById("logoutBtn").style.display = "block";
-
-  loadProduk();
-}
-
-/* =====================
-   TOKEN CHECK
-===================== */
-function isTokenExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp < Math.floor(Date.now() / 1000);
-  } catch (e) {
-    return true;
-  }
-}
-
-/* =====================
-   LOGOUT
-===================== */
-function logout() {
-  localStorage.removeItem("googleToken");
-  googleToken = null;
-  userRole = "public";
-
-  document.getElementById("logoutBtn").style.display = "none";
-
-  if (lastEmail) {
-    document.getElementById("userInfo").innerText =
-      "Last login: " + lastEmail;
-  }
-
-  filterState = { new: false, netto: false, ppn: false };
-  currentPage = 1;
-
-  loadProduk();
-}
-
-/* =====================
-   FORCE LOGOUT
-===================== */
-function forceLogout() {
-  localStorage.removeItem("googleToken");
-  googleToken = null;
-  userRole = "public";
-
-  document.getElementById("logoutBtn").style.display = "none";
-
-  if (lastEmail) {
-    document.getElementById("userInfo").innerText =
-      "Last login: " + lastEmail;
-  }
-
-  filterState = { new: false, netto: false, ppn: false };
-  currentPage = 1;
-
-  loadProduk();
-}
-
-/* =====================
-   FILTER UI
-===================== */
-function renderFilters(role) {
-
-  const box = document.getElementById("filterBox");
-  box.innerHTML = "";
-
-  userRole = role;
-
-  if (role === "public") {
-    box.innerHTML = `
-      <label><input type="checkbox" id="filterNew"> NEW</label>
-    `;
-  }
-
-  if (role === "sales") {
-    box.innerHTML = `
-      <label><input type="checkbox" id="filterNew"> NEW</label>
-      <label><input type="checkbox" id="filterNetto"> NETTO</label>
-      <label><input type="checkbox" id="filterPpn"> PPN</label>
-    `;
-  }
-
-  bindFilters();
-}
-
-/* =====================
-   FILTER EVENTS
-===================== */
-function bindFilters() {
-
-  const newEl = document.getElementById("filterNew");
-  const nettoEl = document.getElementById("filterNetto");
-  const ppnEl = document.getElementById("filterPpn");
-
-  if (newEl) {
-    newEl.onchange = (e) => {
-      filterState.new = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-
-  if (nettoEl) {
-    nettoEl.onchange = (e) => {
-      filterState.netto = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-
-  if (ppnEl) {
-    ppnEl.onchange = (e) => {
-      filterState.ppn = e.target.checked;
-      currentPage = 1;
-      renderProduk();
-    };
-  }
-}
-
-/* =====================
-   LOAD DATA
-===================== */
-async function loadProduk() {
-
-  const res = await fetch(API_URL + buildQuery());
-  const json = await res.json();
-
-  userRole = json.role;
-  allData = json.data || [];
-
-  renderFilters(json.role);
-  renderProduk();
-}
-
-/* =====================
-   QUERY
-===================== */
-function buildQuery() {
-  const params = [];
-
-  if (googleToken) {
-    params.push("token=" + encodeURIComponent(googleToken));
-  }
-
-  return params.length ? "?" + params.join("&") : "";
-}
-
-/* =====================
-   RENDER + SEARCH + FILTER + PAGINATION
-===================== */
-function renderProduk() {
-
-  const container = document.getElementById("produk-list");
-  container.innerHTML = "";
-
-  let data = allData;
-
-  /* SEARCH */
-  if (searchQuery) {
-    data = data.filter(item =>
-      (item["nama item"] || "").toLowerCase().includes(searchQuery) ||
-      (item.kode || "").toLowerCase().includes(searchQuery)
-    );
-  }
-
-  /* FILTER */
-  if (filterState.new) {
-    data = data.filter(item => item.new === "YES");
-  }
-
-  if (filterState.netto) {
-    data = data.filter(item => item.netto === "YES");
-  }
-
-  if (filterState.ppn) {
-    data = data.filter(item => item.ppn);
-  }
-
-  /* PAGINATION */
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-
-  if (currentPage > totalPages) currentPage = 1;
-
-  const start = (currentPage - 1) * itemsPerPage;
-  const pageData = data.slice(start, start + itemsPerPage);
-
-  if (!pageData.length) {
-    container.innerHTML = "<p>Data tidak ditemukan</p>";
-    document.getElementById("pagination").innerHTML = "";
-    return;
-  }
-
-  pageData.forEach(item => {
-
-    const spec = item.spec || {};
-    const specHtml = Object.entries(spec)
-      .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
-      .join("");
-
-    let packaging = item.inner && item.inner !== "-"
-      ? `${item.inner}/${item.carton} ${item.satuan || ""}`
-      : `${item.carton} ${item.satuan || ""}`;
-
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <div class="img-box">
-        ${item.netto === "YES" ? `<span class="badge-netto">NETTO</span>` : ""}
-        ${item.new === "YES" ? `<span class="badge-new">NEW</span>` : ""}
-        <img src="images/${item.kategori}/${item["sub kategori"]}/${item.kode}.webp">
-      </div>
-
-      <h3 style="text-align:center;">${item["nama item"]}</h3>
-
-      ${specHtml}
-
-      <p><b>Packaging:</b> ${packaging} </p>
-
-      <p><b>Stock:</b> ${item.stock}</p>
-
-      ${
-        userRole === "sales"
-          ? `<p><b>Harga:</b> Rp ${Number(item.harga || 0).toLocaleString("id-ID")}/${item["satuan"]}</p>`
-          : ""
-      }
-    `;
-
-    container.appendChild(div);
-  });
-
-  renderPagination(totalPages);
-}
-
-/* =====================
-   PAGINATION UI
-===================== */
-function renderPagination(totalPages) {
-
-  const el = document.getElementById("pagination");
-  el.innerHTML = "";
-
-  if (totalPages <= 1) return;
-
-  let html = "";
-
-  html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Prev</button>`;
-
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<button onclick="changePage(${i})" style="${i === currentPage ? 'font-weight:bold' : ''}">${i}</button>`;
-  }
-
-  html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
-
-  el.innerHTML = html;
-}
-
-/* =====================
-   CHANGE PAGE
-===================== */
-function changePage(page) {
-  currentPage = page;
-  renderProduk();
-}
-
-</script>
+            User
+
+        </a>
+
+    </nav>
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+        <div id="pageCatalog" class="page">
+            <div
+                id="productGrid"
+                class="product-grid">
+            </div>
+        </div>
+
+        <div id="pageOrders" class="page" style="display:none">
+        </div>
+
+        <div id="pageUpload" class="page" style="display:none">
+        </div>
+
+        <div id="pageUnmapped" class="page" style="display:none">
+        </div>
+
+        <div id="pageMapping" class="page" style="display:none">
+        </div>
+
+        <div id="pageUsers" class="page" style="display:none">
+        </div>
+
+    </main>
+
+    <!-- LOGIN MODAL -->
+
+    <div class="modal-overlay" id="loginModal" style="display:none">
+        <div class="login-modal" style="text-align: center;">
+            <h2>Login Sistem</h2>
+            <p style="font-size: 14px; color: #6B7280; margin-bottom: 20px;">
+                Gunakan email perusahaan Anda yang terdaftar untuk masuk.
+            </p>
+            
+            <div id="googleBtn" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
+
+            <div class="login-actions" style="justify-content: center;">
+                <button id="cancelLogin">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- JAVASCRIPT -->
+
+    <script src="js/config.js"></script>
+    <script src="js/utils/constants.js"></script>
+    <script src="js/api.js"></script>
+
+    <script src="js/storage/database.js"></script>
+    <script src="js/storage/sessionStorage.js"></script>
+
+    <script src="js/auth/session.js"></script>
+    <script src="js/auth/permission.js"></script>
+    <script src="js/auth/login.js"></script>
+    <script src="js/auth/logout.js"></script>
+    <script src="js/auth/auth.js"></script>
+
+    <script src="js/components/loginModal.js"></script>
+    <script src="js/components/navbar.js"></script>
+    <script src="js/components/productCard.js"></script>
+
+    <script src="js/pages/catalog.js"></script>
+    <script src="js/pages/upload.js"></script>
+    <script src="js/pages/orders.js"></script>
+    <script src="js/pages/unmapped.js"></script>
+    <script src="js/pages/mapping.js"></script>
+    <script src="js/pages/users.js"></script>
+
+    <script src="js/app.js"></script>
 
 </body>
+
 </html>
